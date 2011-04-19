@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd" name="petClinic14DS">
+
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="false"
+      timeToIdleSeconds="120"
+      timeToLiveSeconds="120"
+      overflowToDisk="true"
+      diskSpoolBufferSizeMB="30"
+      maxElementsOnDisk="10000000"
+      diskPersistent="false"
+      diskExpiryThreadIntervalSeconds="120"
+      memoryStoreEvictionPolicy="LRU"/>
+
+  <cache name="owners"
+         maxElementsInMemory="250000"
+         maxElementsOnDisk="250000"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         memoryStoreEvictionPolicy="LFU"/>
+  <cache name="pets"
+         maxElementsInMemory="625000"
+         maxElementsOnDisk="625000"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         memoryStoreEvictionPolicy="LFU"/>
+  <cache name="visits"
+         maxElementsInMemory="1250000"
+         maxElementsOnDisk="1250000"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         memoryStoreEvictionPolicy="LFU"/>
+  <cache name="petVisits"
+         maxElementsInMemory="625000"
+         maxElementsOnDisk="625000"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         memoryStoreEvictionPolicy="LFU"/>
+  <cache name="ownerPets"
+         maxElementsInMemory="250000"
+         maxElementsOnDisk="250000"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         memoryStoreEvictionPolicy="LFU"/>
+  <cache name="petTypes"
+         maxElementsInMemory="250"
+         maxElementsOnDisk="250"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="0"
+         timeToLiveSeconds="0"
+         memoryStoreEvictionPolicy="LFU"/>
+
+</ehcache>

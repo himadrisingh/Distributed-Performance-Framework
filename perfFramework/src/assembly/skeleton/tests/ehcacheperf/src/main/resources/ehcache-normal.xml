@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd"  name="petClinicDS">
+
+  <defaultCache
+      maxElementsInMemory="1000"
+      eternal="false"
+      timeToIdleSeconds="120"
+      timeToLiveSeconds="120"
+      overflowToDisk="true"
+      diskSpoolBufferSizeMB="30"
+      maxElementsOnDisk="1000"
+      transactionalMode="${transactionalMode}"
+      diskPersistent="false"
+      diskExpiryThreadIntervalSeconds="120"
+      memoryStoreEvictionPolicy="LRU"/>
+
+  <cache name="owners"
+         maxElementsInMemory="${owners_inMemory}"
+         maxElementsOnDisk="${owners_capacity}"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="${owners_tti}"
+         timeToLiveSeconds="${owners_ttl}"
+         transactionalMode="${transactionalMode}"
+         statistics="${statistics}"
+         copyOnWrite="${copyOnWrite}"
+         copyOnRead="${copyOnRead}"
+         memoryStoreEvictionPolicy="LFU">
+
+    ${copyStrategy}
+    
+    <terracotta clustered="${clustered}" 
+    	 valueMode="${valueMode}" 
+    	 consistency="${consistency}" 
+    	 synchronousWrites="${synchronousWrites}"
+    	 coherent="${coherent}"
+    	 localKeyCache="${localKeyCache}" 
+    	 localKeyCacheSize="${localKeyCacheSize}"
+    	 concurrency="${concurrency}" 
+    	 storageStrategy="${storageStrategy}">
+    	 <nonstop enabled="${nonstopEnabled}" 
+    	 	timeoutMillis="${nonstopTimeoutMillis}" 
+    	 	immediateTimeout="${nonstopImmediateTimeout}">
+    	 	<timeoutBehavior type="${nonstopTimeoutBehavior}" />
+    	 </nonstop>
+    </terracotta>
+    	 
+  </cache>
+  
+  <cache name="pets"
+         maxElementsInMemory="${pets_inMemory}"
+         maxElementsOnDisk="${pets_capacity}"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="${pets_tti}"
+         timeToLiveSeconds="${pets_ttl}"
+         transactionalMode="${transactionalMode}"
+         statistics="${statistics}"
+         copyOnWrite="${copyOnWrite}"
+         copyOnRead="${copyOnRead}"
+         memoryStoreEvictionPolicy="LFU">
+
+    ${copyStrategy}
+        
+    <terracotta clustered="${clustered}" 
+    	 valueMode="${valueMode}" 
+    	 consistency="${consistency}" 
+    	 synchronousWrites="${synchronousWrites}"
+    	 coherent="${coherent}"
+    	 localKeyCache="${localKeyCache}" 
+    	 localKeyCacheSize="${localKeyCacheSize}"
+    	 concurrency="${concurrency}" 
+    	 storageStrategy="${storageStrategy}">
+    	 <nonstop enabled="${nonstopEnabled}" 
+    	 	timeoutMillis="${nonstopTimeoutMillis}" 
+    	 	immediateTimeout="${nonstopImmediateTimeout}">
+    	 	<timeoutBehavior type="${nonstopTimeoutBehavior}" />
+    	 </nonstop>
+    </terracotta>
+
+  </cache>
+  
+  <cache name="visits"
+         maxElementsInMemory="${visits_inMemory}"
+         maxElementsOnDisk="${visits_capacity}"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="${visits_tti}"
+         timeToLiveSeconds="${visits_ttl}"
+         transactionalMode="${transactionalMode}"
+         statistics="${statistics}"
+         copyOnWrite="${copyOnWrite}"
+         copyOnRead="${copyOnRead}"
+         memoryStoreEvictionPolicy="LFU">
+
+    ${copyStrategy}
+         
+    <terracotta clustered="${clustered}" 
+    	 valueMode="${valueMode}" 
+    	 consistency="${consistency}" 
+    	 synchronousWrites="${synchronousWrites}"
+    	 coherent="${coherent}"
+    	 localKeyCache="${localKeyCache}" 
+    	 localKeyCacheSize="${localKeyCacheSize}"
+    	 concurrency="${concurrency}" 
+    	 storageStrategy="${storageStrategy}">
+    	 <nonstop enabled="${nonstopEnabled}" 
+    	 	timeoutMillis="${nonstopTimeoutMillis}" 
+    	 	immediateTimeout="${nonstopImmediateTimeout}">
+    	 	<timeoutBehavior type="${nonstopTimeoutBehavior}" />
+    	 </nonstop>
+    </terracotta>
+
+  </cache>
+  
+  <cache name="petVisits"
+         maxElementsInMemory="${petVisits_inMemory}"
+         maxElementsOnDisk="${petVisits_capacity}"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="${petVisits_tti}"
+         timeToLiveSeconds="${petVisits_ttl}"
+         transactionalMode="${transactionalMode}"
+         copyOnWrite="${copyOnWrite}"
+         copyOnRead="${copyOnRead}"
+         statistics="${statistics}"
+         memoryStoreEvictionPolicy="LFU">
+
+    ${copyStrategy}
+         
+    <terracotta clustered="${clustered}" 
+    	 valueMode="${valueMode}" 
+    	 consistency="${consistency}" 
+    	 synchronousWrites="${synchronousWrites}"
+    	 coherent="${coherent}"
+    	 localKeyCache="${localKeyCache}" 
+    	 localKeyCacheSize="${localKeyCacheSize}"
+    	 concurrency="${concurrency}" 
+    	 storageStrategy="${storageStrategy}">
+    	 <nonstop enabled="${nonstopEnabled}" 
+    	 	timeoutMillis="${nonstopTimeoutMillis}" 
+    	 	immediateTimeout="${nonstopImmediateTimeout}">
+    	 	<timeoutBehavior type="${nonstopTimeoutBehavior}" />
+    	 </nonstop>
+    </terracotta>
+
+  </cache>
+  
+  <cache name="ownerPets"
+         maxElementsInMemory="${ownerPets_inMemory}"
+         maxElementsOnDisk="${ownerPets_capacity}"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="${ownerPets_tti}"
+         timeToLiveSeconds="${ownerPets_ttl}"
+         transactionalMode="${transactionalMode}"
+         copyOnWrite="${copyOnWrite}"
+         copyOnRead="${copyOnRead}"
+         statistics="${statistics}"
+         memoryStoreEvictionPolicy="LFU">
+
+    ${copyStrategy}
+         
+    <terracotta clustered="${clustered}" 
+    	 valueMode="${valueMode}" 
+    	 consistency="${consistency}" 
+    	 synchronousWrites="${synchronousWrites}"
+    	 coherent="${coherent}"
+    	 localKeyCache="${localKeyCache}" 
+    	 localKeyCacheSize="${localKeyCacheSize}"
+    	 concurrency="${concurrency}" 
+    	 storageStrategy="${storageStrategy}">
+    	 <nonstop enabled="${nonstopEnabled}" 
+    	 	timeoutMillis="${nonstopTimeoutMillis}" 
+    	 	immediateTimeout="${nonstopImmediateTimeout}">
+    	 	<timeoutBehavior type="${nonstopTimeoutBehavior}" />
+    	 </nonstop>
+    </terracotta>
+
+  </cache>
+  
+  <cache name="petTypes"
+         maxElementsInMemory="${petTypes_inMemory}"
+         maxElementsOnDisk="${petTypes_capacity}"
+         eternal="false"
+         overflowToDisk="false"
+         diskSpoolBufferSizeMB="20"
+         timeToIdleSeconds="${petTypes_tti}"
+         timeToLiveSeconds="${petTypes_ttl}"
+         transactionalMode="${transactionalMode}"
+         copyOnWrite="${copyOnWrite}"
+         copyOnRead="${copyOnRead}"
+         statistics="${statistics}"
+         memoryStoreEvictionPolicy="LFU">
+
+    ${copyStrategy}
+         
+    <terracotta clustered="${clustered}" 
+    	 valueMode="${valueMode}" 
+    	 consistency="${consistency}" 
+    	 synchronousWrites="${synchronousWrites}"
+    	 coherent="${coherent}"
+    	 localKeyCache="${localKeyCache}" 
+    	 localKeyCacheSize="${localKeyCacheSize}"
+    	 concurrency="${concurrency}" 
+    	 storageStrategy="${storageStrategy}">
+    	 <nonstop enabled="${nonstopEnabled}" 
+    	 	timeoutMillis="${nonstopTimeoutMillis}" 
+    	 	immediateTimeout="${nonstopImmediateTimeout}">
+    	 	<timeoutBehavior type="${nonstopTimeoutBehavior}" />
+    	 </nonstop>
+    </terracotta>
+
+  </cache>
+	${expressTerracottaUrl}
+</ehcache>

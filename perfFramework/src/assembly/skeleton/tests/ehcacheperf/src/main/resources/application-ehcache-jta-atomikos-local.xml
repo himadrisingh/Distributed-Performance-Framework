@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean name="tmLookup"
+		class="org.springframework.cache.ehcache.SpringTransactionManagerLookup">
+		<property name="transactionManager" ref="atomikosTransactionManager" />
+	</bean>
+
+	<import resource="application-common.xml" />
+	<import resource="application-ehcache-common.xml" />
+	<import resource="application-jta-atomikos.xml" />
+
+	<bean name="jtaTest" class="com.terracotta.ehcache.perf.test.JTATest">
+		<property name="transactionManagerLookup" ref="tmLookup" />
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="singleThreadedWarmup" value="${singleThreadedWarmup}" />
+		<property name="writePercentage" value="${readwrite.write.percentage}" />
+		<property name="cacheManager" ref="cacheManager" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+
+	<!-- JDBC STUFF -->
+
+	<!--
+		<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.FasterLazyConnectionDataSourceProxy">
+		<property name="targetDataSource" ref="dataSourceTarget"/> </bean>
+	-->
+
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+		<constructor-arg ref="dataSource" />
+	</bean>
+
+	<bean id="dataSource" class="com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean"
+		init-method="init" destroy-method="close">
+		<!-- set an arbitrary but unique name for the datasource -->
+		<property name="uniqueResourceName" value="dataSource" />
+
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="url" value="${jdbc.url}" />
+
+		<property name="minPoolSize" value="30" />
+		<property name="maxPoolSize" value="300" />
+	</bean>
+
+</beans>

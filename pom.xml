@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.terracotta</groupId>
+   <artifactId>perfFramework-parent</artifactId>
+   <version>1.0.0-SNAPSHOT</version>
+   <packaging>pom</packaging>
+   <name>PerfFramework Parent</name>
+
+  <licenses>
+    <license>
+      <name>Terracotta Public License</name>
+      <url>http://www.terracotta.org/license.txt</url>
+    </license>
+  </licenses>
+
+   <modules>
+      <module>clusterWatcher</module>
+      <module>perfFramework</module>
+   </modules>
+
+   <repositories>
+      <repository>
+         <id>terracotta-repository</id>
+         <url>http://www.terracotta.org/download/reflector/releases</url>
+         <releases>
+            <enabled>true</enabled>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+         </snapshots>
+      </repository>
+   </repositories>
+   
+</project>

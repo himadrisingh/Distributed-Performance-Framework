@@ -1,0 +1,18 @@
+#!/bin/sh
+
+_VMARGS="-Dbitronix.tm.journal=null -Xms2048m -Xmx2048m"
+
+function checkRc {
+  local rc=$1
+  if [ "$rc" != "0" ]; then
+    exit
+  fi
+}
+
+mvn compile dependency:build-classpath -Dmdep.outputFile=./target/classpath.txt
+checkRc $?
+
+_CP=`cat ./target/classpath.txt`:./target/classes
+
+$JAVA_HOME/bin/java -showversion -cp ${_CP} ${_VMARGS} com.terracotta.EhCachePerfTest ./src/main/resources/mvn-tc-run.node.properties
+

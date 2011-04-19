@@ -1,0 +1,22 @@
+=========================================
+  		Perf Framework 2.0
+=========================================
+
+Steps to run:
+
+1. Edit conf/fw-tc-config.xml to set fw-tc-server hostname/ip.
+
+2. Start terracotta server for framework.
+	bin/start-fw-server.sh
+
+3. Start slave process on required machines
+	bin/run-slave.sh
+
+4. Check conf/load.properties and set kit-location, machines, etc
+
+5. If using test/ehcacheperf, do "mvn clean install".
+
+6. To start master process
+ 	bin/run-master.sh
+
+===============================================================================================

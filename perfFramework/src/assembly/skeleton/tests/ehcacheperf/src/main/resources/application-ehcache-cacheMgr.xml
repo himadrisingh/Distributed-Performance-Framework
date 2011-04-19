@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean id="cacheManager"
+		class="org.springframework.cache.ehcache.TcEhCacheManagerFactoryBean">
+		<property name="configLocation" value="classpath:${ehcache.config}" />
+		<property name="coherent" value="${ehcache.coherent}" />
+		<property name="consistency" value="${ehcache.consistency}" />
+		<property name="synchronousWrites" value="${ehcache.synchronousWrites}" />
+		<property name="copyStrategy" value="${ehcache.copyStrategy}" />
+		<property name="concurrency" value="${ehcache.concurrency}" />
+		<property name="valueMode" value="${ehcache.valueMode}" />
+		<property name="localKeyCache" value="${ehcache.localKeyCache}" />
+		<property name="localKeyCacheSize" value="${ehcache.localKeyCacheSize}" />
+		<property name="storageStrategy" value="${ehcache.storageStrategy}" />
+		<property name="copyOnRead" value="${ehcache.copyOnRead}" />
+		<property name="copyOnWrite" value="${ehcache.copyOnWrite}" />
+
+		<property name="owners_tti" value="${ehcache.owners.tti}" />
+		<property name="owners_ttl" value="${ehcache.owners.ttl}" />
+		<property name="owners_inMemory" value="${ehcache.owners.inMemory}" />
+		<property name="owners_capacity" value="${ehcache.owners.capacity}" />
+
+		<property name="pets_tti" value="${ehcache.pets.tti}" />
+		<property name="pets_ttl" value="${ehcache.pets.ttl}" />
+		<property name="pets_inMemory" value="${ehcache.pets.inMemory}" />
+		<property name="pets_capacity" value="${ehcache.pets.capacity}" />
+
+		<property name="visits_tti" value="${ehcache.visits.tti}" />
+		<property name="visits_ttl" value="${ehcache.visits.ttl}" />
+		<property name="visits_inMemory" value="${ehcache.visits.inMemory}" />
+		<property name="visits_capacity" value="${ehcache.visits.capacity}" />
+
+		<property name="petVisits_tti" value="${ehcache.petVisits.tti}" />
+		<property name="petVisits_ttl" value="${ehcache.petVisits.ttl}" />
+		<property name="petVisits_inMemory" value="${ehcache.petVisits.inMemory}" />
+		<property name="petVisits_capacity" value="${ehcache.petVisits.capacity}" />
+
+		<property name="ownerPets_tti" value="${ehcache.ownerPets.tti}" />
+		<property name="ownerPets_ttl" value="${ehcache.ownerPets.ttl}" />
+		<property name="ownerPets_inMemory" value="${ehcache.ownerPets.inMemory}" />
+		<property name="ownerPets_capacity" value="${ehcache.ownerPets.capacity}" />
+
+		<property name="petTypes_tti" value="${ehcache.petTypes.tti}" />
+		<property name="petTypes_ttl" value="${ehcache.petTypes.ttl}" />
+		<property name="petTypes_inMemory" value="${ehcache.petTypes.inMemory}" />
+		<property name="petTypes_capacity" value="${ehcache.petTypes.capacity}" />
+
+		<property name="statistics" value="${ehcache.statistics}" />
+		<property name="clustered" value="${ehcache.clustered}" />
+		<property name="transactionalMode" value="${ehcache.transactionalMode}" />
+		<property name="expressTerracottaUrl" value="${expressTerracottaUrl}" />
+		<property name="standalone" value="${standalone}" />
+
+		<property name="maxWriteDelay" value="${writer.maxWriteDelay}" />
+		<property name="writeBatching" value="${writer.writeBatching}" />
+		<property name="writeBatchSize" value="${writer.writeBatchSize}" />
+		<property name="writeCoalescing" value="${writer.writeCoalescing}" />
+		<property name="writeMode" value="${writer.writeMode}" />
+		
+		<property name="nonstopEnabled" value="${useNonStopCache}"/>
+		<property name="nonstopTimeoutMillis" value="${nonStopCache.timeoutMillis}"/>
+		<property name="nonstopImmediateTimeout" value="${nonStopCache.immediateTimeout}"/>
+		<property name="nonstopTimeoutBehavior" value="${nonStopCache.timeoutBehavior}"/>
+		
+		<property name="rejoin" value="${ehcache.rejoin}"/>
+	</bean>
+
+</beans>
+	

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tc:tc-config xsi:schemaLocation="http://www.terracotta.org/config http://www.terracotta.org/schema/terracotta-4.xsd" xmlns:tc="http://www.terracotta.org/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <servers>
+    <server name="ehacheperf" host="%i">
+      <data>target/terracotta/server/data</data>
+      <logs>target/terracotta/server/logs</logs>
+      <statistics>target/terracotta/server/statistics</statistics>
+    </server>
+  </servers>
+  <clients>
+    <dso>
+      <debugging>
+        <runtime-logging/>
+      </debugging>
+    </dso>
+    <logs>target/terracotta/clients/logs/%(tc.nodeName)</logs>
+    <modules>
+      <module name="tim-ehcache-2.x"/>
+    </modules>
+  </clients>
+  <application>
+    <dso>
+      <roots>
+        <root>
+          <field-name>com.terracotta.util.DefaultBarrierImpl.barrier</field-name>
+        </root>
+        <root>
+          <field-name>com.terracotta.util.DefaultAtomicLongImpl.counter</field-name>
+        </root>
+      </roots>
+    </dso>
+  </application>
+</tc:tc-config>

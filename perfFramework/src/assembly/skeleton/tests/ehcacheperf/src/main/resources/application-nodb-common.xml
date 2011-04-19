@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <bean name="dummyTest" class="com.terracotta.ehcache.perf.test.DummyTest"/>
+  <bean name="readOnlyTest" class="com.terracotta.ehcache.perf.test.ReadOnlyTest">
+    <property name="maxKeyValue" value="${elementNum}"/>
+    <property name="threadNum" value="${warmUpThreads}"/>
+    <property name="clinic" ref="noDbClinic"/>
+  </bean>
+  <bean name="readWriteTest" class="com.terracotta.ehcache.perf.test.ReadWriteTest">
+    <property name="maxKeyValue" value="${elementNum}"/>
+    <property name="threadNum" value="${warmUpThreads}"/>
+    <property name="writePercentage" value="${readwrite.write.percentage}"/>
+    <property name="clinic" ref="noDbClinic"/>
+  </bean>
+  <bean name="readWriteBehindTest" class="com.terracotta.ehcache.perf.test.ReadWriteBehindTest">
+    <property name="maxKeyValue" value="${elementNum}"/>
+    <property name="threadNum" value="${warmUpThreads}"/>
+    <property name="writePercentage" value="${readwrite.write.percentage}"/>
+    <property name="clinic" ref="noDbClinic"/>
+  </bean>
+  <bean name="partitionedReadOnlyTest" class="com.terracotta.ehcache.perf.test.PartitionedReadOnlyTest">
+    <property name="maxKeyValue" value="${elementNum}"/>
+    <property name="threadNum" value="${warmUpThreads}"/>
+    <property name="clinic" ref="noDbClinic"/>
+  </bean>
+
+  <bean name="partitionedReadWriteTest" class="com.terracotta.ehcache.perf.test.PartitionedReadWriteTest">
+    <property name="maxKeyValue" value="${elementNum}"/>
+    <property name="threadNum" value="${warmUpThreads}"/>
+    <property name="writePercentage" value="${readwrite.write.percentage}"/>
+    <property name="clinic" ref="noDbClinic"/>
+  </bean>
+
+  <bean name="bulkLoadTest" class="com.terracotta.ehcache.perf.test.BulkLoadTest">
+    <property name="maxKeyValue" value="${elementNum}"/>
+    <property name="threadNum" value="${warmUpThreads}"/>
+    <property name="clinic" ref="noDbClinic"/>
+  </bean>
+
+  <bean name="cacheGetSizeTest" class="com.terracotta.ehcache.perf.test.CacheGetSizeTest">
+	<property name="maxKeyValue" value="${elementNum}" />
+	<property name="threadNum" value="${warmUpThreads}" />
+	<property name="clinic" ref="noDbClinic" />
+  </bean>
+	
+  <bean name="nonStopCacheTest" class="com.terracotta.ehcache.perf.test.NonStopCacheTest">
+    <property name="maxKeyValue" value="${elementNum}"/>
+    <property name="threadNum" value="${warmUpThreads}"/>
+    <property name="clinic" ref="noDbClinic"/>
+  </bean>
+  
+  <bean name="evictionTest" class="com.terracotta.ehcache.perf.test.EvictionTest">
+	<property name="maxKeyValue" value="${elementNum}" />
+	<property name="threadNum" value="${warmUpThreads}" />
+	<property name="clinic" ref="noDbClinic" />
+    <property name="writePercentage" value="${readwrite.write.percentage}"/>
+  </bean>
+
+  <bean name="hotSetReadOnlyTest" class="com.terracotta.ehcache.perf.test.hotset.ReadOnlyHotSetLRUTest">
+	<property name="maxKeyValue" value="${elementNum}" />
+	<property name="threadNum" value="${warmUpThreads}" />
+	<property name="clinic" ref="noDbClinic" />
+  </bean>
+
+  <bean name="hotSetReadWriteTest" class="com.terracotta.ehcache.perf.test.hotset.ReadMostlyHotSetTest">
+	<property name="maxKeyValue" value="${elementNum}" />
+	<property name="threadNum" value="${warmUpThreads}" />
+	<property name="clinic" ref="noDbClinic" />
+    <property name="writePercentage" value="${readwrite.write.percentage}"/>
+  </bean>
+
+  <bean name="readWriteMovingHotSetTest" class="com.terracotta.ehcache.perf.test.ReadWriteMovingHotSetTest">
+	<property name="maxKeyValue" value="${elementNum}" />
+	<property name="threadNum" value="${warmUpThreads}" />
+	<property name="clinic" ref="noDbClinic" />
+    <property name="writePercentage" value="${readwrite.write.percentage}"/>
+  </bean>
+  
+  <bean name="cacheClearTest" class="com.terracotta.ehcache.perf.test.CacheClearTest">
+	<property name="maxKeyValue" value="${elementNum}" />
+	<property name="threadNum" value="${warmUpThreads}" />
+	<property name="clinic" ref="noDbClinic" />
+  </bean>
+  
+  <bean name="movingKeySetTest" class="com.terracotta.ehcache.perf.test.MovingKeySetTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="writePercentage" value="${readwrite.write.percentage}" />
+		<property name="clinic" ref="noDbClinic" />
+	</bean>
+
+  <bean id="noDbClinic" class="org.springframework.samples.petclinic.ClinicJdbcImpl">
+    <property name="ownerDao" ref="ownerDaoNoDb"/>
+    <property name="petDao" ref="petDaoNoDb"/>
+    <property name="visitDao" ref="visitDaoNoDb"/>
+    <property name="petTypeDao" ref="petTypeDaoNoDb"/>
+    <property name="cacheManager" ref="cacheManager" />
+  </bean>
+
+  <!-- No DB DAO's -->
+  <bean id="ownerDaoNoDb" class="org.springframework.samples.petclinic.dao.nodb.NodbOwnerDaoImpl">
+    <property name="keyPaddingInBytes" value="${keyPaddingInBytes}"/>
+    <property name="valuePaddingInBytes" value="${valuePaddingInBytes}"/>
+    <property name="variableValue" value="${variableValue}"/>
+    <property name="copyOnRead" value="${ehcache.copyOnRead}"/>
+    <property name="cache" ref="ownerCache"/>
+  </bean>
+
+  <bean id="petDaoNoDb" class="org.springframework.samples.petclinic.dao.nodb.NodbPetDaoImpl">
+    <property name="keyPaddingInBytes" value="${keyPaddingInBytes}"/>
+    <property name="valuePaddingInBytes" value="${valuePaddingInBytes}"/>
+    <property name="variableValue" value="${variableValue}"/>
+    <property name="copyOnRead" value="${ehcache.copyOnRead}"/>
+    <property name="cache" ref="petCache"/>
+    <property name="ownerPetCache" ref="ownerPetCache"/>
+  </bean>
+
+  <bean id="petTypeDaoNoDb" class="org.springframework.samples.petclinic.dao.nodb.NodbPetTypeDaoImpl">
+    <property name="keyPaddingInBytes" value="${keyPaddingInBytes}"/>
+    <property name="valuePaddingInBytes" value="${valuePaddingInBytes}"/>
+    <property name="variableValue" value="${variableValue}"/>
+    <property name="copyOnRead" value="${ehcache.copyOnRead}"/>
+    <property name="cache" ref="petTypeCache"/>
+  </bean>
+
+  <bean id="visitDaoNoDb" class="org.springframework.samples.petclinic.dao.nodb.NodbVisitDaoImpl">
+    <property name="keyPaddingInBytes" value="${keyPaddingInBytes}"/>
+    <property name="valuePaddingInBytes" value="${valuePaddingInBytes}"/>
+    <property name="variableValue" value="${variableValue}"/>
+    <property name="copyOnRead" value="${ehcache.copyOnRead}"/>
+    <property name="cache" ref="visitCache"/>
+    <property name="petVisitCache" ref="petVisitCache"/>
+  </bean>
+
+  <context:annotation-config/>
+  <context:component-scan base-package="org.springframework.samples.petclinic"/>
+
+
+</beans>

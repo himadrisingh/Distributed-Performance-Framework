@@ -1,0 +1,6 @@
+- Compile project
+	mvn clean install
+
+- Create distributable package. from perfFramework
+	mvn assembly:assembly
+

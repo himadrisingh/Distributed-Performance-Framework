@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean name="dummyTest" class="com.terracotta.ehcache.perf.test.DummyTest" />
+	<bean name="readOnlyTest" class="com.terracotta.ehcache.perf.test.ReadOnlyTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+	<bean name="readWriteTest" class="com.terracotta.ehcache.perf.test.ReadWriteTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="writePercentage" value="${readwrite.write.percentage}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+	<bean name="readWriteBehindTest" class="com.terracotta.ehcache.perf.test.ReadWriteBehindTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="writePercentage" value="${readwrite.write.percentage}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+	<bean name="nonStopCacheReadWriteTest" class="com.terracotta.ehcache.perf.test.NonStopCacheReadWriteTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="writePercentage" value="${readwrite.write.percentage}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+	<bean name="partitionedReadOnlyTest"
+		class="com.terracotta.ehcache.perf.test.PartitionedReadOnlyTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+
+	<bean name="partitionedReadWriteTest"
+		class="com.terracotta.ehcache.perf.test.PartitionedReadWriteTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="writePercentage" value="${readwrite.write.percentage}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+	
+	<bean name="nonStopCachePartitionedReadWriteTest"
+		class="com.terracotta.ehcache.perf.test.NonStopCachePartitionedReadWriteTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="writePercentage" value="${readwrite.write.percentage}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+
+	<bean name="bulkLoadTest" class="com.terracotta.ehcache.perf.test.BulkLoadTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+
+	<bean name="cacheGetSizeTest" class="com.terracotta.ehcache.perf.test.CacheGetSizeTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+
+	<bean name="nonStopCacheTest" class="com.terracotta.ehcache.perf.test.NonStopCacheTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+
+    <bean name="evictionTest" class="com.terracotta.ehcache.perf.test.EvictionTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="writePercentage" value="${readwrite.write.percentage}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+
+    <bean name="hotSetReadOnlyTest" class="com.terracotta.ehcache.perf.test.hotset.ReadOnlyHotSetLRUTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+
+	<bean name="movingKeySetTest" class="com.terracotta.ehcache.perf.test.MovingKeySetTest">
+		<property name="maxKeyValue" value="${elementNum}" />
+		<property name="threadNum" value="${warmUpThreads}" />
+		<property name="writePercentage" value="${readwrite.write.percentage}" />
+		<property name="clinic" ref="clinic" />
+	</bean>
+	
+	<bean id="clinic" class="org.springframework.samples.petclinic.ClinicJdbcImpl">
+		<property name="ownerDao" ref="ownerDao" />
+		<property name="petDao" ref="petDao" />
+		<property name="visitDao" ref="visitDao" />
+		<property name="petTypeDao" ref="petTypeDao" />
+	</bean>
+
+
+	<!-- DAOs -->
+
+	<bean id="ownerDao"
+		class="org.springframework.samples.petclinic.dao.jdbc.OwnerDaoImpl">
+		<property name="cache" ref="ownerCache" />
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="datasource" ref="dataSource" />
+	</bean>
+
+	<bean id="petDao"
+		class="org.springframework.samples.petclinic.dao.jdbc.PetDaoImpl">
+		<property name="cache" ref="petCache" />
+		<property name="ownerPetCache" ref="ownerPetCache" />
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="datasource" ref="dataSource" />
+	</bean>
+
+	<bean id="petTypeDao"
+		class="org.springframework.samples.petclinic.dao.jdbc.PetTypeDaoImpl">
+		<property name="cache" ref="petTypeCache" />
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="datasource" ref="dataSource" />
+	</bean>
+
+	<bean id="visitDao"
+		class="org.springframework.samples.petclinic.dao.jdbc.VisitDaoImpl">
+		<property name="cache" ref="visitCache" />
+		<property name="petVisitCache" ref="petVisitCache" />
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="datasource" ref="dataSource" />
+	</bean>
+
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+		<constructor-arg ref="dataSource" />
+	</bean>
+
+	<context:annotation-config />
+	<context:component-scan base-package="org.springframework.samples.petclinic" />
+
+
+</beans>

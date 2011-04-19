@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+	<!--  Bitronix Transaction Manager embedded configuration -->
+	<bean id="btmConfig" factory-method="getConfiguration"
+		class="bitronix.tm.TransactionManagerServices">
+		<property name="serverId" value="ehcacheperf" />
+		<property name="logPart1Filename" value="./target/btm1.tlog" />
+		<property name="logPart2Filename" value="./target/btm2.tlog" />
+		<property name="warnAboutZeroResourceTransaction" value="false" />
+		<property name="disableJmx" value="true" />
+	</bean>
+
+	<!-- create BTM transaction manager -->
+	<bean id="bitronixTransactionManager" factory-method="getTransactionManager"
+		class="bitronix.tm.TransactionManagerServices" depends-on="btmConfig"
+		destroy-method="shutdown" />
+
+	<!--
+		Configure the Spring framework to use JTA transactions from BTM
+	-->
+	<bean id="txManager"
+		class="org.springframework.transaction.jta.JtaTransactionManager">
+		<property name="transactionManager" ref="bitronixTransactionManager" />
+		<property name="userTransaction" ref="bitronixTransactionManager" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="txManager" />
+</beans>
