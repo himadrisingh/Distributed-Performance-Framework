@@ -13,7 +13,15 @@
     </license>
   </licenses>
 
-   <modules>
+  <properties>
+  	 <terracotta.version>3.5.0</terracotta.version>
+  	 <toolkit-runtime.version>3.0.0</toolkit-runtime.version>
+	 <ehcache-core.version>2.4.1</ehcache-core.version>
+	 <ehcache-terracotta.version>2.4.1</ehcache-terracotta.version>
+	 <tc-maven.version>1.6.2</tc-maven.version>
+  </properties>
+	
+  <modules>
       <module>clusterWatcher</module>
       <module>perfFramework</module>
    </modules>

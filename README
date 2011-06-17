@@ -1,6 +1,7 @@
 - Compile project
 	mvn clean install
 
-- Create distributable package. from perfFramework
+- Create distributable package. 
+        cd perfFramework
 	mvn assembly:assembly
 
