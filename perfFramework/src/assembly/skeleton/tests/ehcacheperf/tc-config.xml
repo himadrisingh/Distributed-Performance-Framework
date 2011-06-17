@@ -8,26 +8,6 @@
     </server>
   </servers>
   <clients>
-    <dso>
-      <debugging>
-        <runtime-logging/>
-      </debugging>
-    </dso>
-    <logs>target/terracotta/clients/logs/%(tc.nodeName)</logs>
-    <modules>
-      <module name="tim-ehcache-2.x"/>
-    </modules>
-  </clients>
-  <application>
-    <dso>
-      <roots>
-        <root>
-          <field-name>com.terracotta.util.DefaultBarrierImpl.barrier</field-name>
-        </root>
-        <root>
-          <field-name>com.terracotta.util.DefaultAtomicLongImpl.counter</field-name>
-        </root>
-      </roots>
-    </dso>
-  </application>
+	<logs>target/terracotta/client/logs/%D</logs>
+</clients>
 </tc:tc-config>

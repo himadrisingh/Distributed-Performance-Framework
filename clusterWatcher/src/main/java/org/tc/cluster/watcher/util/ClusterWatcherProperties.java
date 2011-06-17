@@ -11,6 +11,7 @@ public class ClusterWatcherProperties {
 
 	private static final Logger LOG	= Logger.getLogger(ClusterWatcherProperties.class);
 	private static final Properties props = new Properties();
+	public static int INITIAL_RETRIES;
 
 	public static int LOW_TXR_THRESHOLD;
 	public static long PROBE_INTERVAL;
@@ -26,6 +27,7 @@ public class ClusterWatcherProperties {
 		LOG.info("ClusterWatcher Properties - " +
 				"\n\ttc-config url: " + TC_CONFIG +
 				"\n\tClient Count: " + CLIENT_COUNTS +
+				"\n\tInitial Retries (5s): " + INITIAL_RETRIES +
 				"\n\tProbe interval: " + PROBE_INTERVAL + " ms" +
 				"\n\tOne Active Server Max Check: " + ONE_ACTIVE_MAX_CHECK +
 				"\n\tMissing Clients Max Check: " + MISSING_CLIENT_MAX_CHECK +
@@ -43,7 +45,8 @@ public class ClusterWatcherProperties {
 		CLUSTER_DOWN_MAX_CHECK    	= getPropertyAsInt("cluster.down.max.check" , 24);
 		CLIENT_COUNTS 				= getPropertyAsInt("clientcount" , 0);
 		TC_CONFIG					= getProperty("tc-config.url","localhost:9510");
-		CHECK_CLUSTER_DOWN			= getBoolean("cluster.down.check");
+		CHECK_CLUSTER_DOWN			= getBoolean("cluster.down.check", false);
+		INITIAL_RETRIES				= getPropertyAsInt("initial.retries", 24);
 	}
 
 	public static void loadProperties(String propertyFile){
@@ -65,8 +68,7 @@ public class ClusterWatcherProperties {
 		props.clear();
 		props.putAll(p);
 		refresh();
-		LOG.info(props);
-		LOG.info(p);
+		LOG.info("Loaded properties: " + props);
 		printProps();
 	}
 
@@ -90,12 +92,12 @@ public class ClusterWatcherProperties {
 		return Long.parseLong(getProperty(name, String.valueOf(defaultVal)).trim());
 	}
 
-	public static boolean getBoolean(String key) {
+	public static boolean getBoolean(String key, boolean defaultVal) {
 		String value = getProperty(key);
 		if (value != null) {
 			return Boolean.valueOf(value);
 		}
-		return false;
+		return Boolean.valueOf(defaultVal);
 	}
 
 	public static long toMillis(String time) {

@@ -78,11 +78,10 @@ public class ServerStat {
 		}
 		catch (ConnectException ce){
 			LOG.warn(this + " : Connection Refused. Probably server crashed.");
-			throw new NotConnectedException();
+			throw new NotConnectedException(host + ":" + port, ce);
 		}
 		catch (Exception e) {
-			LOG.warn(this + " : " + e.getMessage());
-			throw new NotConnectedException();
+			throw new NotConnectedException(host + ":" + port, e);
 		}
 	}
 
@@ -119,18 +118,18 @@ public class ServerStat {
 	public void registerDsoNotificationListener(NotificationListener listener)
 	throws InstanceNotFoundException, IOException,
 	MalformedObjectNameException, NullPointerException {
-		LOG.info("Adding DSO Notification listener...");
 		ObjectName dsoObjectName = new ObjectName(DSO_MBEAN_NAME);
 		mbsc.addNotificationListener(dsoObjectName, listener, null, null);
+		LOG.info("Added DSO Notification listener...");
 	}
 
 	public void registerEventNotificationListener(NotificationListener listener)
 	throws InstanceNotFoundException, IOException,
 	MalformedObjectNameException, NullPointerException {
-		LOG.info("Adding Event Nofitication Listener...");
 		ObjectName eventListenerObjectName = new ObjectName(OPS_EVENT);
 		mbsc.addNotificationListener(eventListenerObjectName, listener, null,
 				null);
+		LOG.info("Added Event Nofitication Listener...");
 	}
 
 	@Override

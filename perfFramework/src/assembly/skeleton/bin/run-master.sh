@@ -43,7 +43,7 @@ JAVA_OPTS="$JAVA_OPTS -Dfw.tc.config=$workdir/conf/fw-tc-config.xml"
 # requires large chunk of heap currently since loading tc-kit can oome.
 $JAVA_HOME/bin/java $JAVA_OPTS -Xmx512m \
   -cp $CLASSPATH \
-  org.tc.perf.BootStrapClass master $config 
+  org.tc.perf.BootStrapClass MASTER $config 
  
 # > "$console_log" 2>&1 &
 # echo Check startup log at $workdir/logs/console.log

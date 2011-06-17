@@ -15,14 +15,9 @@
 		<dependency>
 			<groupId>org.terracotta</groupId>
 			<artifactId>terracotta</artifactId>
-			<version>3.5.0</version>
+			<version>${terracotta.version}</version>
 		</dependency>
 	</dependencies>
-	<properties>
-		<tc-maven.version>1.6.2</tc-maven.version>
-		<terracotta.version>3.5.0</terracotta.version>
-	</properties>
-
 	<description>Monitoring for terracotta cluster</description>
 	<build>
 		<plugins>

@@ -4,22 +4,66 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 
+ * This class is used to define the arguments needed to start a java process.
+ * 
+ * @author Himadri Singh
+ */
 public class ProcessConfig {
 
 	private final List<String> defaultArgs = Arrays.asList(
-			"-XX:+HeapDumpOnOutOfMemoryError", "-XX:+PrintGCDateStamps",
-			"-XX:+PrintTenuringDistribution", "-verbose:gc",
-			"-XX:+PrintGCApplicationStoppedTime", "-XX:+PrintHeapAtGC",
+			"-XX:+HeapDumpOnOutOfMemoryError", "-verbose:gc",
+			"-XX:+PrintGCTimeStamps", "-XX:+PrintGCDetails",
 			"-Dcom.sun.management.jmxremote", "-showversion",
-			"-Dcom.sun.management.jmxremote.ssl=false","-Dcom.sun.management.jmxremote.authenticate=false");
-	//,"-Dcom.sun.management.jmxremote.port=9240"
-	private final String  mainClass;
+			"-Dcom.sun.management.jmxremote.ssl=false",
+	"-Dcom.sun.management.jmxremote.authenticate=false");
+
+	/**
+	 * the main class to be start a java process.
+	 */
+	private final String mainClass;
+
+	/**
+	 * the classpath being used to start the process.
+	 */
 	private String classpath = ".";
+
+	/**
+	 * the list of program arguments
+	 */
 	private List<String> arguments = new ArrayList<String>();
+
+	/**
+	 * the location from where java process should be started so that relative
+	 * paths, if any, are maintained.
+	 */
 	private String location = "";
+
+	/**
+	 * relative path to the log directory
+	 */
 	private String relativeLogDir = "./";
+
+	/**
+	 * the list of jvm arguments
+	 */
 	private List<String> jvmArgs = new ArrayList<String>();
-	private String logSnippet = "";
+
+	/**
+	 * the log snippet that will mark the java process started successfully
+	 */
+	private String logSnippet = null;
+
+	/**
+	 * for custom java home settings.
+	 */
+	private String javaHome = System.getProperty("java.home");
+
+	/**
+	 * log filename that contains the console output.
+	 */
+	private String consoleLog = "start.log";
 
 	public ProcessConfig(String mainClass) {
 		this.mainClass = mainClass;
@@ -74,7 +118,7 @@ public class ProcessConfig {
 		return logSnippet;
 	}
 
-	public ProcessConfig  waitForLogSnippet(String logSnippet) {
+	public ProcessConfig setLogSnippet(String logSnippet) {
 		this.logSnippet = logSnippet;
 		return this;
 	}
@@ -86,4 +130,22 @@ public class ProcessConfig {
 	public List<String> getDefaultArgs() {
 		return defaultArgs;
 	}
+
+	public String getJavaHome() {
+		return javaHome;
+	}
+
+	public ProcessConfig setJavaHome(String javaHome) {
+		this.javaHome = javaHome;
+		return this;
+	}
+
+	public String getConsoleLog() {
+		return consoleLog;
+	}
+
+	public void setConsoleLog(String consoleLog) {
+		this.consoleLog = consoleLog;
+	}
+
 }

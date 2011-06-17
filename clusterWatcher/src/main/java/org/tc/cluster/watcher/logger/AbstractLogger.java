@@ -3,6 +3,7 @@ package org.tc.cluster.watcher.logger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.tc.cluster.watcher.NotConnectedException;
 import org.tc.cluster.watcher.ServerStat;
 
 public abstract class AbstractLogger {
@@ -14,5 +15,5 @@ public abstract class AbstractLogger {
 		return format.format(new Date());
 	}
 
-	abstract public void logStats(ServerStat stat);
+	abstract public void logStats(ServerStat stat) throws NotConnectedException;
 }

@@ -11,6 +11,11 @@
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
+      <directory>${project.basedir}/src/assembly/skeleton/bin</directory>
+      <outputDirectory>bin</outputDirectory>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
       <directory>${project.basedir}/src/main/resources</directory>
       <outputDirectory>conf</outputDirectory>
       <includes>

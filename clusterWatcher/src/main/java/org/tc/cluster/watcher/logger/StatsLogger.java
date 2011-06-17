@@ -17,27 +17,23 @@ public class StatsLogger extends AbstractLogger {
 	}
 
 	@Override
-	public void logStats(ServerStat serverStat){
+	public void logStats(ServerStat serverStat) throws NotConnectedException{
 		DSOMBean bean;
-		try {
-			bean = serverStat.getDsoMbean();
-			StringBuilder builder = new StringBuilder(getTime());
-			builder.append(SEP)
-			.append(bean.getLiveObjectCount()).append(SEP)
-			.append(bean.getTransactionRate()).append(SEP)
-			.append(bean.getL2DiskFaultRate()).append(SEP)
-			.append(bean.getObjectFaultRate()).append(SEP)
-			.append(bean.getObjectFlushRate()).append(SEP)
-			.append(bean.getOffHeapFaultRate()).append(SEP)
-			.append(bean.getOffHeapFlushRate()).append(SEP)
-			.append(bean.getBroadcastRate()).append(SEP)
-			.append(bean.getOffheapMapAllocatedMemory()).append(SEP)
-			.append(bean.getOffheapObjectAllocatedMemory()).append(SEP)
-			.append(bean.getPendingTransactionsCount());
-			CSV.debug(builder.toString());
-		} catch (NotConnectedException e) {
-			//
-		}
+		bean = serverStat.getDsoMbean();
+		StringBuilder builder = new StringBuilder(getTime());
+		builder.append(SEP)
+		.append(bean.getLiveObjectCount()).append(SEP)
+		.append(bean.getTransactionRate()).append(SEP)
+		.append(bean.getL2DiskFaultRate()).append(SEP)
+		.append(bean.getObjectFaultRate()).append(SEP)
+		.append(bean.getObjectFlushRate()).append(SEP)
+		.append(bean.getOffHeapFaultRate()).append(SEP)
+		.append(bean.getOffHeapFlushRate()).append(SEP)
+		.append(bean.getBroadcastRate()).append(SEP)
+		.append(bean.getOffheapMapAllocatedMemory()).append(SEP)
+		.append(bean.getOffheapObjectAllocatedMemory()).append(SEP)
+		.append(bean.getPendingTransactionsCount());
+		CSV.debug(builder.toString());
 	}
 
 }

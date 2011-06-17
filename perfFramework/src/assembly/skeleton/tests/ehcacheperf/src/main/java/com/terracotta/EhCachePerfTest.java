@@ -29,6 +29,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class EhCachePerfTest {
 
+  // Needed for Destructive tests L1 restarts. Restarted L1s should skip barriers all the time.
+  private static final boolean      skipBarrier = Boolean.parseBoolean(System.getProperty("skip.barrier", "false"));
+
   private static final long         INITIAL_VALUE = -1;
   private static final Logger       log           = Logger.getLogger(EhCachePerfTest.class);
   private static final String       BARRIER_ROOT  = "BARRIER_ROOT";
@@ -421,6 +424,11 @@ public class EhCachePerfTest {
   }
 
   private int await(){
+    if (skipBarrier){
+      log.warn("Skipping barriers.....");
+      return configuration.getNodesNum();
+    }
+
     int parties = -1;
     try {
       parties = barrier.await();

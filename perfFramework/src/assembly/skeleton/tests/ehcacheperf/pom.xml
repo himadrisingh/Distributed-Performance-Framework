@@ -158,7 +158,7 @@
         <version>${tc-maven-plugin.version}</version>
         <configuration>
           <mode>${tc.mode}</mode>
-		  <startServer>false</startServer>
+		  <startServer>true</startServer>
           <processes>
             <process count="1" jvmargs="-Dorg.terracotta.license.path=terracotta-license.key"
                      arguments="src/main/resources/mvn-tc-run.node.properties">
@@ -184,22 +184,6 @@
   </build>
 
   <profiles>
-    <profile>
-      <id>dso</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <properties>
-      	<tc.mode>custom</tc.mode>
-      </properties>
-      <dependencies>
-        <dependency>
-          <groupId>org.terracotta.modules</groupId>
-          <artifactId>tim-ehcache-2.x</artifactId>
-          <version>${tim-ehcache-2.x.version}</version>
-        </dependency>
-      </dependencies>
-    </profile>
     <profile>
       <id>express</id>
       <activation>
@@ -234,6 +218,7 @@
       <id>JA-SIG</id>
       <url>http://developer.jasig.org/repo/content/groups/m2-legacy/</url>
     </repository>
+    
     <repository>
       <id>hibernate-memcached</id>
       <name>hibernate-memcached</name>
@@ -251,11 +236,7 @@
       <layout>default</layout>
     </repository>
 
-    <repository>
-      <id>hibernate-memcached</id>
-      <name>hibernate-memcached</name>
-      <url>http://raykrueger.googlecode.com/svn/repository/</url>
-    </repository>
+    
   </repositories>
   <properties>
   	<ehcache-core.version>2.5.0-SNAPSHOT</ehcache-core.version>

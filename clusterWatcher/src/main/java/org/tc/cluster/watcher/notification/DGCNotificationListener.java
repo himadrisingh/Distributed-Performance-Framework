@@ -13,11 +13,12 @@ public class DGCNotificationListener implements NotificationListener {
 
 	private static final Logger LOG = Logger.getLogger(DGCNotificationListener.class);
 	private static final Logger DGC = Logger.getLogger("dgc");
-	private static final String GC_STATUS_UPDATE = "dso.gc.status.update";
+	private static final String GC_STATUS_UPDATE 	= "dso.gc.status.update";
+	private static final String CLIENT_ATTACHED 	= "dso.client.attached";
+	private static final String CLIENT_DETACHED		= "dso.client.detached";
 	private static final String SEP = " , ";
 	private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-	private static final String GC_MARK_COMPLETE = "MARK_COMPLETE";
 	private static final String GC_COMPLETE      = "COMPLETE";
 
 	public DGCNotificationListener() {
@@ -42,7 +43,7 @@ public class DGCNotificationListener implements NotificationListener {
 	}
 
 	public void handleNotification(Notification notification, Object handback) {
-		System.out.println(notification.getType());
+		//		System.out.println(notification.getType());
 		if (GC_STATUS_UPDATE.equals(notification.getType())){
 			checkDGC(notification);
 		}

@@ -34,10 +34,13 @@ public class ClusterWatcher {
 				Thread.sleep(5000);
 				count++;
 			}
-		} while (clusterList == null & count < 5);
+		} while (clusterList == null & count < ClusterWatcherProperties.INITIAL_RETRIES);
 		if (clusterList == null){
 			throw new Exception("Cluster is not up.");
 		}
+
+		ServerStat active = getActiveCoordinator();
+		registerEvents(active);
 
 		LOG.info("ClusterWatcher initialized. Cluster: ");
 		Iterator<MirrorGroup> iterator = clusterList.iterator();
@@ -46,17 +49,17 @@ public class ClusterWatcher {
 			MirrorGroup mg = iterator.next();
 			LOG.info("Mirror Group " + ++i + ": " + mg);
 		}
-		ServerStat active = getActiveCoordinator();
+	}
+
+	private void registerEvents(ServerStat active){
 		try {
-			active
-			.registerDsoNotificationListener(new DGCNotificationListener());
+			active.registerDsoNotificationListener(new DGCNotificationListener());
 		} catch (Exception e) {
 			LOG.error("Error in registering DSO Notification Listener : "
 					+ e.getMessage());
 		}
 		try {
-			active
-			.registerEventNotificationListener(new OperatorEventsNotificationListener());
+			active.registerEventNotificationListener(new OperatorEventsNotificationListener(active));
 		} catch (Exception e) {
 			LOG
 			.error("Error in registering Event Notification Listener. Are u running OS kit? : "
@@ -69,19 +72,30 @@ public class ClusterWatcher {
 			try {
 				Thread.sleep(ClusterWatcherProperties.PROBE_INTERVAL);
 			} catch (InterruptedException e) {
+				LOG.info("ClusterWatcher Finished.");
 				return;
 			}
+			if (!allServerOnline()){
+				FATAL.error("##### ALL SERVERS ARE NOT ONLINE. #####");
+			}
 			ServerStat serverStat = getActiveCoordinator();
-			if (serverStat != null && allServerOnline()) {
+			if (serverStat != null) {
 				LOG.info(serverStat + " is ACTIVE-COORDINATOR");
 				clusterDownProbeCount = 0;
-				checkClients(serverStat);
-				checkLowTxnRate(serverStat);
-				tcStats.logStats(serverStat);
-				sysStats.logStats(serverStat);
+				try {
+					checkClients(serverStat);
+					checkLowTxnRate(serverStat);
+					tcStats.logStats(serverStat);
+					sysStats.logStats(serverStat);
+				} catch (NotConnectedException e) {
+					FATAL.error(e.getMessage());
+				}
 			} else {
-				if(!ClusterWatcherProperties.CHECK_CLUSTER_DOWN)
+				if(!ClusterWatcherProperties.CHECK_CLUSTER_DOWN){
+					LOG.fatal("Cluster down check is not enabled. " +
+					"To enable add property. cluster.down.check : true");
 					return;
+				}
 				clusterDownProbeCount++;
 				LOG.warn("No ACTIVE-COORDINATOR found !!! Count: "
 						+ clusterDownProbeCount + ", Threshold: "
@@ -131,39 +145,31 @@ public class ClusterWatcher {
 		}
 	}
 
-	private void checkLowTxnRate(ServerStat serverStat) {
-		try{
-			long txr = serverStat.getDsoMbean().getTransactionRate();
-			if (txr >= ClusterWatcherProperties.LOW_TXR_THRESHOLD)
-				lowTxrProbeCount = 0;
-			else {
-				lowTxrProbeCount++;
-				LOG.warn("Low-Txn-Rate: Curr: " + lowTxrProbeCount + " , MAX: "
-						+ ClusterWatcherProperties.LOW_TXR_MAX_CHECK);
-			}
-
-			check(lowTxrProbeCount == ClusterWatcherProperties.LOW_TXR_MAX_CHECK,
-					"Transaction rate goes below threshold of "
-					+ ClusterWatcherProperties.LOW_TXR_THRESHOLD);
-		} catch (NotConnectedException e){
-			LOG.error(e.getMessage());
+	private void checkLowTxnRate(ServerStat serverStat) throws NotConnectedException {
+		long txr = serverStat.getDsoMbean().getTransactionRate();
+		if (txr >= ClusterWatcherProperties.LOW_TXR_THRESHOLD)
+			lowTxrProbeCount = 0;
+		else {
+			lowTxrProbeCount++;
+			LOG.warn("Low-Txn-Rate: Curr: " + lowTxrProbeCount + " , MAX: "
+					+ ClusterWatcherProperties.LOW_TXR_MAX_CHECK);
 		}
+
+		check(lowTxrProbeCount == ClusterWatcherProperties.LOW_TXR_MAX_CHECK,
+				"Transaction rate goes below threshold of "
+				+ ClusterWatcherProperties.LOW_TXR_THRESHOLD);
 	}
 
-	private void checkClients(ServerStat serverStat) {
-		try{
-			int connectedClients = serverStat.getDsoMbean().getClients().length;
-			long expectedClients = ClusterWatcherProperties.CLIENT_COUNTS;
-			LOG.info("expected " + expectedClients + " got: " + connectedClients
-					+ " clients");
-			missingClientsProbeCount = (connectedClients < expectedClients ? (missingClientsProbeCount + 1)
-					: 0);
-			check(missingClientsProbeCount == ClusterWatcherProperties.MISSING_CLIENT_MAX_CHECK,
-					"Expecting [" + expectedClients + "] but got ["
-					+ connectedClients + "]");
-		} catch (NotConnectedException e){
-			LOG.error(e.getMessage());
-		}
+	private void checkClients(ServerStat serverStat) throws NotConnectedException {
+		int connectedClients = serverStat.getDsoMbean().getClients().length;
+		long expectedClients = ClusterWatcherProperties.CLIENT_COUNTS;
+		LOG.info("expected " + expectedClients + " got: " + connectedClients
+				+ " clients");
+		missingClientsProbeCount = (connectedClients < expectedClients ? (missingClientsProbeCount + 1)
+				: 0);
+		check(missingClientsProbeCount == ClusterWatcherProperties.MISSING_CLIENT_MAX_CHECK,
+				"Expecting [" + expectedClients + "] but got ["
+				+ connectedClients + "]");
 	}
 
 	private void check(boolean condition, String msg) {

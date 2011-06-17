@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tc:tc-config xsi:schemaLocation="http://www.terracotta.org/config http://www.terracotta.org/schema/terracotta-4.xsd"
-xmlns:tc="http://www.terracotta.org/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <servers> 
-   <server host="%i" name="FW_TC_SERVER">
-	<data>target/terracotta/server/data</data>
-	<logs>target/terracotta/server/logs</logs>
-	<statistics>target/terracotta/server/statistics</statistics>
-	<dso-port>8510</dso-port>
-	<jmx-port>8520</jmx-port>
-  </server>
-</servers>
-<clients>
-	<logs>target/terracotta/client/logs/%D</logs>
-</clients>
+<tc:tc-config xsi:schemaLocation="http://www.terracotta.org/config http://www.terracotta.org/schema/terracotta-4.xsd" xmlns:tc="http://www.terracotta.org/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <servers>
+    <server host="%i" name="FW_TC_SERVER">
+      <data>target/terracotta/server/data</data>
+      <logs>target/terracotta/server/logs</logs>
+      <statistics>target/terracotta/server/statistics</statistics>
+      <dso-port>8510</dso-port>
+      <jmx-port>8520</jmx-port>
+    </server>
+  </servers>
+  <clients>
+    <logs>target/terracotta/client/logs/%D</logs>
+  </clients>
+  <application>
+    <dso>
+      <instrumented-classes/>
+    </dso>
+  </application>
 </tc:tc-config>

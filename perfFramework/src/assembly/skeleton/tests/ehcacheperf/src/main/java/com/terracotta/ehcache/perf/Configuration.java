@@ -99,6 +99,7 @@ public class Configuration {
     getBoolean("ehcache.synchronousWrites", false);
     getBoolean("ehcache.clustered" , true);
     getBoolean("ehcache.statistics" , false);
+    getBoolean("ehcache.copyOnWrite", false);
 
     getString("ehcache.valueMode" , ValueMode.SERIALIZATION.toString());
     getString("ehcache.consistency", Consistency.STRONG.toString());

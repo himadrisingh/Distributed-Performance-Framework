@@ -1,6 +1,6 @@
-=========================================
-  		Perf Framework 2.0
-=========================================
+==========================================================
+  		Test Framework 2.0
+==========================================================
 
 Steps to run:
 
@@ -9,8 +9,8 @@ Steps to run:
 2. Start terracotta server for framework.
 	bin/start-fw-server.sh
 
-3. Start slave process on required machines
-	bin/run-slave.sh
+3. Start agents on required machines
+	bin/run-agent.sh
 
 4. Check conf/load.properties and set kit-location, machines, etc
 
@@ -19,4 +19,22 @@ Steps to run:
 6. To start master process
  	bin/run-master.sh
 
-===============================================================================================
+==========================================================
+		Add new tests
+==========================================================
+
+1. Add test artifacts to tests/
+
+2. The test should be self-sufficient.
+
+	a. all the jars required by the test should be present, ehcache-core,ehcache-terracotta,etc.
+	b. If running clustered cache, change the tc-config url to the terracotta server ip/hostname to be used in test f/w.
+
+3. Edit conf/load.properties. Check load.properties for details.
+	a. test.name
+	b. directories
+	c. classpath
+	d. main-classname
+	e. arguments
+
+4. Start the test f/w 

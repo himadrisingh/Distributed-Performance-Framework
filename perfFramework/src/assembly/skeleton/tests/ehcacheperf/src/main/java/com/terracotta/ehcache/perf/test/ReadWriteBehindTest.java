@@ -40,17 +40,19 @@ public class ReadWriteBehindTest extends PartitionedReadWriteTest {
     Owner owner = clinic.loadOwner(key + 1);
     if (owner == null) { throw new RuntimeException("Key '" + key + "' has no value in the cache"); }
     // This action now mutates the Owner and adds a visit.
-    owner.setTelephone(random.nextInt(999999999) + "");
-    List<Pet> pets = owner.getPets();
-    // add a visit
-    if (pets.size() > 0) {
-      Pet pet = pets.get(0);
-      Visit visit = new Visit(PERFTEST);
-      int id = (Integer.MAX_VALUE / numberOfNodes * nodeId)  + visits.incrementAndGet();
-      visit.setId(id);
-      pet.addVisit(visit);
-    } else {
-      log.error("owner with no pets: " + owner.getAccount());
+    if (doWrite()) {
+      owner.setTelephone(random.nextInt(999999999) + "");
+      List<Pet> pets = owner.getPets();
+      // add a visit
+      if (pets.size() > 0) {
+        Pet pet = pets.get(0);
+        Visit visit = new Visit(PERFTEST);
+        int id = (Integer.MAX_VALUE / numberOfNodes * nodeId)  + visits.incrementAndGet();
+        visit.setId(id);
+        pet.addVisit(visit);
+      } else {
+        log.error("owner with no pets: " + owner.getAccount());
+      }
     }
     clinic.storeOwner(owner);
     clinic.refreshCache(owner);

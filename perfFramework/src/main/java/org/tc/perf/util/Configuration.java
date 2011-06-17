@@ -6,11 +6,18 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Loads configuration file. Set default values.
+ * 
+ * @author Himadri Singh
+ */
 public class Configuration implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -20,23 +27,34 @@ public class Configuration implements Serializable {
 	private final String kitLocation;
 	private final List<File> testDirectories;
 	private final List<String> classpathRegex;
+	private final List<String> logRegex;
 	private final String mainClass;
 	private final String location;
 	private final List<String> arguments;
 	private final List<String> l1_jvmArgs;
 	private final List<String> l2_jvmArgs;
+	private final List<String> load_jvmArgs;
+	private final String loadMainClass;
+	private final List<String> loadArguments;
 
 	private final List<String> l2machines;
 	private final List<String> l1machines;
 	private final List<String> loadmachines;
+	private final List<String> allmachines = new ArrayList<String>();
 
+	private final int serversPerMirrorGroup;
 	private final boolean dgcEnabled;
 	private final int dgcInterval;
-	private final String  persistence;
-	//	private final String dataShareMode;
+	private final String persistence;
 	private final boolean offheapEnabled;
 	private final String offheapMaxDataSize;
 	private final String licenseFileLocation;
+	private final String clientLogCheck;
+
+	private final String testUniqueId;
+
+	private final String l1_javaHome;
+	private final String l2_javaHome;
 
 	public Configuration(final String properties) {
 		props = loadProperties(properties);
@@ -44,25 +62,45 @@ public class Configuration implements Serializable {
 		kitLocation = getRequiredString("kit.location");
 		licenseFileLocation = getString("kit.licenseLocation",
 		"target/terracotta-license.key");
-		testDirectories = getDirectories(toList(getString("directories","target/ target/dependencies")));
-		classpathRegex = toList(getString("classpath", "*.jar *.xml *.properties"));
+		testDirectories = getDirectories(toList(getString("directories",
+		"target/ target/dependencies")));
+		classpathRegex = toList(getString("classpath",
+		"*.jar *.xml *.properties"));
+		logRegex = toList(getString("log.collection.ext", "*.jar *.xml .*txt"));
 		mainClass = getRequiredString("main-classname");
 		location = getString("logLocation", "target/");
 		arguments = toList(getString("arguments", ""));
 
 		l2machines = toList(getRequiredString("l2machines").toLowerCase());
 		l1machines = toList(getRequiredString("l1machines").toLowerCase());
-		loadmachines = toList(getString("loadmachines","").toLowerCase());
+		loadmachines = toList(getString("loadmachines", "").toLowerCase());
 
+		allmachines.addAll(l2machines);
+		allmachines.addAll(l1machines);
+		allmachines.addAll(loadmachines);
+
+		loadArguments = toList(getString("load-arguments", ""));
+		loadMainClass = (loadmachines.size() > 0) ? getRequiredString("load-main-classname")
+				: "";
+
+		load_jvmArgs = toList(getString("load_jvm_args", ""));
 		l1_jvmArgs = toList(getString("l1_jvm_args", ""));
 		l2_jvmArgs = toList(getString("l2_jvm_args", ""));
 
+		serversPerMirrorGroup = getInteger("serversPerMirrorGroup", 1);
 		dgcEnabled = getBoolean("dgc.enabled", true);
 		dgcInterval = getInteger("dgc.interval", 300);
-		persistence = (getBoolean("persistence.enabled", false))?"permanent-store":"temporary-swap-only";
+		persistence = (getBoolean("persistence.enabled", false)) ? "permanent-store"
+				: "temporary-swap-only";
 
+		clientLogCheck = getString("client.log.check", "");
 		offheapEnabled = getBoolean("l2.offheap.enabled", false);
 		offheapMaxDataSize = getString("l2.offheap.maxDataSize", "1g");
+
+		l1_javaHome = getString("java.home", System.getProperty("java.home"));
+		l2_javaHome = getString("java.home", System.getProperty("java.home"));
+
+		testUniqueId = UUID.randomUUID().toString();
 	}
 
 	private List<File> getDirectories(final List<String> dirNames) {
@@ -81,6 +119,18 @@ public class Configuration implements Serializable {
 			throw new RuntimeException("Test jar directories cant be zero.");
 
 		return directories;
+	}
+
+	public List<String> getLoad_jvmArgs() {
+		return load_jvmArgs;
+	}
+
+	public String getLoadMainClass() {
+		return loadMainClass;
+	}
+
+	public List<String> getLoadArguments() {
+		return loadArguments;
 	}
 
 	public Properties getProps() {
@@ -108,8 +158,28 @@ public class Configuration implements Serializable {
 		return classpathRegex;
 	}
 
+	public List<String> getLogRegex() {
+		return logRegex;
+	}
+
 	public String getMainClass() {
 		return mainClass;
+	}
+
+	public String getL1_javaHome() {
+		return l1_javaHome;
+	}
+
+	public String getL2_javaHome() {
+		return l2_javaHome;
+	}
+
+	public String getClientLogCheck() {
+		return clientLogCheck;
+	}
+
+	public String getTestUniqueId() {
+		return testUniqueId;
 	}
 
 	public String getLocation() {
@@ -130,6 +200,14 @@ public class Configuration implements Serializable {
 
 	public List<String> getLoadmachines() {
 		return loadmachines;
+	}
+
+	public List<String> getAllmachines() {
+		return allmachines;
+	}
+
+	public int getServersPerMirrorGroup() {
+		return serversPerMirrorGroup;
 	}
 
 	public boolean isDgcEnabled() {
@@ -160,12 +238,14 @@ public class Configuration implements Serializable {
 		return l2_jvmArgs;
 	}
 
-	public List<String> toList(final String value){
+	public List<String> toList(final String value) {
+		List<String> list;
 		// If the string is null or empty, return an empty array.
 		if (value == null || value.trim().length() == 0)
-			return new ArrayList<String>();
+			list = new ArrayList<String>();
 		else
-			return Arrays.asList(value.split(" "));
+			list = Arrays.asList(value.split(" "));
+		return Collections.unmodifiableList(list);
 	}
 
 	public Boolean getBoolean(final String key, final boolean defaultValue) {
@@ -182,7 +262,7 @@ public class Configuration implements Serializable {
 
 	public String getString(final String key, final String defaultValue) {
 		String value = props.getProperty(key);
-		if (value == null) {
+		if (value == null || value.trim().length() == 0) {
 			log.warn("Key not found in Properties: " + key
 					+ " , Using defaults: " + defaultValue);
 			props.setProperty(key, defaultValue);
@@ -205,7 +285,7 @@ public class Configuration implements Serializable {
 		try {
 			props.load(new FileInputStream(location));
 		} catch (IOException e) {
-			throw new RuntimeException("Cannot find properties file.",e);
+			throw new RuntimeException("Cannot find properties file.", e);
 		}
 		return props;
 	}

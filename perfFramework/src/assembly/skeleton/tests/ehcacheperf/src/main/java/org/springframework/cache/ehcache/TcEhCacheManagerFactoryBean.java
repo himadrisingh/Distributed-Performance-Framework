@@ -236,7 +236,7 @@ public class TcEhCacheManagerFactoryBean implements FactoryBean, InitializingBea
       String[] caches = cacheManager.getCacheNames();
       for (String name : caches){
         Cache cache = cacheManager.getCache(name);
-        logger.info("Setting cache [" + name + "] coherent: " + c);
+        logger.info("Setting cache [" + name + "] bulk load: " + c);
         cache.setNodeBulkLoadEnabled(c);
       }
     }
@@ -247,7 +247,7 @@ public class TcEhCacheManagerFactoryBean implements FactoryBean, InitializingBea
       String[] caches = cacheManager.getCacheNames();
       for (String name : caches){
         Cache cache = cacheManager.getCache(name);
-        logger.info("Waiting for cache [" + name + "] to be cluster coherent.");
+        logger.info("Waiting for cache [" + name + "] to complete bulk load.");
         cache.waitUntilClusterBulkLoadComplete();
       }
     }

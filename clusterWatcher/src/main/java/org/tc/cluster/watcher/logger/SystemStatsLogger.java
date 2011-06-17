@@ -1,5 +1,6 @@
 package org.tc.cluster.watcher.logger;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import com.tc.stats.DSOMBean;
 
 public class SystemStatsLogger extends AbstractLogger {
 	private static final Logger	SYS_STAT = Logger.getLogger("system_stats");
+	private static final Logger LOG		 = Logger.getLogger(SystemStatsLogger.class);
 	private static boolean isHeaderLogged = false;
 
 	private static final String MEMORY_USED = "memory used";
@@ -47,7 +49,7 @@ public class SystemStatsLogger extends AbstractLogger {
 	}
 
 	@Override
-	public void logStats(ServerStat stat) {
+	public void logStats(ServerStat stat) throws NotConnectedException {
 		try {
 			DSOMBean dso = stat.getDsoMbean();
 			TCServerInfoMBean info = stat.getInfoBean();
@@ -68,8 +70,9 @@ public class SystemStatsLogger extends AbstractLogger {
 				.append(SEP).append(l1StatsMap.get(MEMORY_USED)).append(SEP);
 			}
 			SYS_STAT.debug(data.toString());
-		} catch (NotConnectedException e) {
-			e.printStackTrace();
+		}
+		catch (UndeclaredThrowableException e){
+			LOG.error(e.getLocalizedMessage());
 		}
 	}
 
