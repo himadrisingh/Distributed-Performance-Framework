@@ -53,9 +53,9 @@ public class ReadWriteBehindTest extends PartitionedReadWriteTest {
       } else {
         log.error("owner with no pets: " + owner.getAccount());
       }
+      clinic.storeOwner(owner);
+      clinic.refreshCache(owner);
     }
-    clinic.storeOwner(owner);
-    clinic.refreshCache(owner);
   }
 
   @Override

@@ -9,6 +9,7 @@ import org.terracotta.api.TerracottaClient;
 import org.terracotta.coordination.Barrier;
 import org.terracotta.util.ClusteredAtomicLong;
 
+import com.terracotta.cache.CacheStatsProcessor;
 import com.terracotta.ehcache.perf.Configuration;
 import com.terracotta.ehcache.perf.HotSetConfiguration;
 import com.terracotta.ehcache.perf.test.AbstractTest;
@@ -32,7 +33,6 @@ public class EhCachePerfTest {
   // Needed for Destructive tests L1 restarts. Restarted L1s should skip barriers all the time.
   private static final boolean      skipBarrier = Boolean.parseBoolean(System.getProperty("skip.barrier", "false"));
 
-  private static final long         INITIAL_VALUE = -1;
   private static final Logger       log           = Logger.getLogger(EhCachePerfTest.class);
   private static final String       BARRIER_ROOT  = "BARRIER_ROOT";
 
@@ -51,17 +51,17 @@ public class EhCachePerfTest {
   private volatile boolean          testComplete;
   private Thread                    reporterThread;
   private final AtomicInteger       nodeTestCount = new AtomicInteger();
-  private volatile int              testCountAtLastReport;
+  private volatile int              testCountAtLastReport, readCountAtLastReport, writeCountAtLastReport;
 
   private final LongStat            latencyStats  = new LongStat(1024 * 1024);
-  private long                      cumulativeLatencyTotal;
-  private long                      cumulativeLatencyMin;
-  private long                      cumulativeLatencyMax;
+  private final LongStat            cumulativeLatencyStats  = new LongStat(1024 * 1024);
+
   private long                      bulkLoadCompleteTime;
 
-  private volatile ClusteredAtomicLong clusterWarmup;
-  private volatile ClusteredAtomicLong clusterTestCount;
-  private volatile ClusteredAtomicLong clusterLatency;
+  private volatile ClusteredAtomicLong clusterWarmup, clusterTestCount, clusterLatency;
+  private volatile ClusteredAtomicLong clusterReads, clusterWrites, clusterCacheWarmup;
+
+  private final CacheStatsProcessor processor = CacheStatsProcessor.getInstance();
 
   private final TcEhCacheManagerFactoryBean ehcacheBean;
 
@@ -83,6 +83,9 @@ public class EhCachePerfTest {
       clusterTestCount = toolkit.getAtomicLong("ehcacheperf-clusterTestCount");
       clusterLatency = toolkit.getAtomicLong("ehcacheperf-clusterLatency");
       clusterWarmup = toolkit.getAtomicLong("ehcacheperf-warmup");
+      clusterReads = toolkit.getAtomicLong("ehcacheperf-clusterReads");
+      clusterWrites = toolkit.getAtomicLong("ehcacheperf-clusterWrites");
+      clusterCacheWarmup = toolkit.getAtomicLong("ehcacheperf-clusterCacheWarmup");
 
       // Counter for increasing keys over time
       ClusteredAtomicLong atomicLong = toolkit.getAtomicLong("ehcacheperf-currKeyCount");
@@ -93,6 +96,9 @@ public class EhCachePerfTest {
       clusterTestCount = new DefaultAtomicLongImpl();
       clusterLatency = new DefaultAtomicLongImpl();
       clusterWarmup = new DefaultAtomicLongImpl();
+      clusterReads = new DefaultAtomicLongImpl();
+      clusterWrites = new DefaultAtomicLongImpl();
+      clusterCacheWarmup = new DefaultAtomicLongImpl();
     }
     this.nodeId = await();
     test.setNodeId(nodeId);
@@ -127,15 +133,26 @@ public class EhCachePerfTest {
       log.info("Starting L2 Warmup phase.");
       log.info("Loading cache: bulk load enabled : " + configuration.isBulkLoadEnabled());
       setBulkLoad(configuration.isBulkLoadEnabled());
+
       long start = now();
       test.doL2WarmUp();
       long end = now();
+
       long count = configuration.getElementNum() / configuration.getNodesNum();
       long time = (end - start) / 1000;
       time = (time == 0) ? 1 : time;
       log.info(String.format("L2 Cache Warmup complete, %d reads, %d seconds, %.1f reads/sec", count, time, count * 1.0
                              / time));
       clusterWarmup.addAndGet(count/time);
+
+      test.processCacheStats();
+      int warmup = processor.getWrite();
+      LongStat warmupStats = processor.getWriteStat();
+      log.info(String.format("Cache Warmup: %d puts, %d seconds, %.1f puts/sec", warmup, time, warmup * 1.0 / time));
+      log.info("Cache Warmup Latency: " + warmupStats.toString());
+      clusterCacheWarmup.addAndGet(warmup / time);
+      test.resetCacheStats();
+
       log.info("Waiting for all nodes to complete L2 warmup.");
       await();
       start = now();
@@ -163,12 +180,6 @@ public class EhCachePerfTest {
     if (configuration.isSearchEnabled()){
       SearchExecutor exec = new SearchExecutor(configuration, ehcacheBean);
       exec.run();
-      try {
-        log.info("Running ehcacheperf search for 1 min alone.");
-        Thread.sleep(60000);
-      } catch (InterruptedException e) {
-        //
-      }
     }
 
     testStartTime = now();
@@ -185,12 +196,13 @@ public class EhCachePerfTest {
             long start = now();
             try {
               test.doTestBody();
-            } catch (RuntimeException e) {
+            }
+            catch (NonStopCacheException ne){
+              nonstopCacheExceptionCount.incrementAndGet();
+            }
+            catch (RuntimeException e) {
               log.error("error in test", e);
               testHasErrors = true;
-              if (e instanceof NonStopCacheException){
-                nonstopCacheExceptionCount.incrementAndGet();
-              }
             }
             iterationComplete(now() - start);
           }
@@ -290,70 +302,107 @@ public class EhCachePerfTest {
     if (period && !isTestRunning()) return;
 
     long now = now();
-
-    if (period) {
-      log.info("---------------------------------------------");
-      if (configuration.getTestDuration() < 0)
-        log.info("Test running in LRT mode.");
-      else
-        log.info("Remaining Time: " + Util.formatTimeInSecondsToWords((estimatedTestEndTime - now) / 1000));
-    }
-
-    // Node Period TPS
     int currentCount = nodeTestCount.get();
-    long periodTestCount = currentCount - testCountAtLastReport;
-    if (period) {
-      log.info(String.format("Node: Period iterations/sec =  %.1f, completed = %d ",
-                             1000.0 * periodTestCount / (now - lastReportTime),
-                             periodTestCount));
-      lastReportTime = now;
-    }
-    // Node Period latency
-    testCountAtLastReport = currentCount;
     latencyStats.snapshot();
-    double periodAvg = latencyStats.getAverage();
-    long periodMax = latencyStats.getMax();
-    long periodMin = latencyStats.getMin();
+    this.cumulativeLatencyStats.add(latencyStats);
 
     if (period) {
-      log.info("Node: Period latency: "
-               + String.format("min: %d, max: %d, average: %.5f", periodMin, periodMax, periodAvg));
+      log.info("");
+      log.info("------------------ Test Stats -----------------------");
+      if (configuration.getTestDuration() < 0) {
+        log.info("Test running for " + Util.formatTimeInSecondsToWords((now - testStartTime) / 1000));
+      } else {
+        log.info("Remaining Time: " + Util.formatTimeInSecondsToWords((estimatedTestEndTime - now) / 1000));
+      }
+
+      /* *******************************************************
+       * Node Periodic Stats
+       * *******************************************************/
+      int periodTestCount = currentCount - testCountAtLastReport;
+      log.info(String.format("Node: Period iterations/sec =  %.1f, completed = %d ", 1000.0 * periodTestCount
+                             / (now - lastReportTime),
+                             periodTestCount));
+
+      log.info("Node: Period latency: " + latencyStats);
+
+      testCountAtLastReport = currentCount;
     }
 
+    /* *******************************************************
+     * Node Cumulative Stats
+     * *******************************************************/
     int writes = test.getWritesCount();
-    if (writes > 0)
-      log.info(String.format("Node: Cumulative iterations/sec =  %.1f, completed = %d , writes = %d (%.1f %%)", 1000.0 * currentCount / (now - testStartTime),
-                             currentCount, writes, writes * 100.0 /currentCount));
-    else
-      log.info(String.format("Node: Cumulative iterations/sec =  %.1f, completed = %d", 1000.0 * currentCount / (now - testStartTime),
+    if (writes > 0) {
+      log.info(String.format("Node: Cumulative iterations/sec =  %.1f, completed = %d , writes = %d (%.1f %%)",
+                             1000.0 * currentCount / (now - testStartTime), currentCount, writes, writes * 100.0
+                             / currentCount));
+    } else {
+      log.info(String.format("Node: Cumulative iterations/sec =  %.1f, completed = %d", 1000.0 * currentCount
+                             / (now - testStartTime),
                              currentCount));
-
-
-    this.cumulativeLatencyTotal += latencyStats.getTotal();
-    if (periodMin < cumulativeLatencyMin || periodMin == INITIAL_VALUE) {
-      this.cumulativeLatencyMin = periodMin;
     }
+    log.info("Node: Cumulative latency: " + cumulativeLatencyStats);
 
-    if (periodMax > cumulativeLatencyMax || periodMax == INITIAL_VALUE) {
-      this.cumulativeLatencyMax = periodMax;
-    }
-
-    long cumulativeMin = this.cumulativeLatencyMin;
-    long cumulativeMax = this.cumulativeLatencyMax;
-    double cumulativeAvg = (double) this.cumulativeLatencyTotal / currentCount;
-
-    // Log latency stats and reset on each report.
-    log.info("Node: Cumulative latency: "
-             + String.format("min: %d, max: %d, average: %.5f", cumulativeMin, cumulativeMax, cumulativeAvg));
     latencyStats.reset();
-    if (period) {
-      test.doPeriodReport();
-    }
+    printCacheStats(period);
 
     if (testHasErrors) {
       log.error("Node: Test has errors. NonstopCacheException: " + nonstopCacheExceptionCount.get());
     }
     lastReportTime = now;
+  }
+
+  private void printCacheStats(final boolean period){
+    long now = now();
+    test.processCacheStats();
+
+    // Cache detailed stats
+    LongStat readStat = processor.getReadStat();
+    LongStat writeStat = processor.getWriteStat();
+    readStat.snapshot();
+    writeStat.snapshot();
+
+    int readCount = processor.getRead();
+    int writeCount = processor.getWrite();
+    int total = readCount + writeCount;
+
+    if (period){
+      /* *******************************************************
+       * Node Periodic Cache Stats
+       * *******************************************************/
+      log.info("------------------ Cache Stats -----------------------");
+
+      int periodReadCount = readCount - readCountAtLastReport;
+      int periodWriteCount = writeCount - writeCountAtLastReport;
+      int periodTotalCount = (total) - (readCountAtLastReport + writeCountAtLastReport);
+
+      log.info(String.format("Cache: Period Read iterations/sec =  %.1f, completed = %d ", 1000.0 * periodReadCount
+                             / (now - lastReportTime),
+                             periodReadCount));
+      log.info(String.format("Cache: Period Write iterations/sec =  %.1f, completed = %d ", 1000.0 * periodWriteCount
+                             / (now - lastReportTime),
+                             periodWriteCount));
+      log.info(String.format("Cache: Period iterations/sec =  %.1f, completed = %d ", 1000.0 * periodTotalCount
+                             / (now - lastReportTime),
+                             periodTotalCount));
+
+      readCountAtLastReport = readCount;
+      writeCountAtLastReport = writeCount;
+    }
+
+    /* *******************************************************
+     * Cumulative Cache stats
+     * *******************************************************/
+    log.info(String.format("Cache: Cumulative Read iterations/sec =  %.1f, completed = %d", 1000.0 * readCount / (now - testStartTime),
+                           readCount));
+    log.info(String.format("Cache: Cumulative Write iterations/sec =  %.1f, completed = %d", 1000.0 * writeCount / (now - testStartTime),
+                           writeCount));
+    log.info(String.format("Cache: Cumulative Total iterations/sec =  %.1f, completed = %d", 1000.0 * total / (now - testStartTime),
+                           total));
+    log.info("Cache: Cumulative Read latency: " + readStat);
+    log.info("Cache: Cumulative Write latency: " + writeStat);
+
+    processor.reset();
   }
 
   public static void main(String[] args) throws Exception {
@@ -381,21 +430,32 @@ public class EhCachePerfTest {
   public void doFinalReport() {
     await();
     doPeriodReport(false);
+    test.processCacheStats();
     clusterTestCount.addAndGet(nodeTestCount.intValue());
+    clusterReads.addAndGet(processor.getRead());
+    clusterWrites.addAndGet(processor.getWrite());
 
-    if (getConfiguration().isStandalone())
-      clusterLatency.addAndGet(cumulativeLatencyTotal * 100 /testCountAtLastReport);    // * 100 to get better average as it will convert to Long
-
+    // * 100 to get better average as it will convert to Long
+    if (getConfiguration().isStandalone()) {
+      clusterLatency.addAndGet((long) cumulativeLatencyStats.getTotal() * 100 / testCountAtLastReport);
+    }
     await();
     long totalNode = nodeTestCount.get();
     long totalCluster = clusterTestCount.get();
+    long totalRead = clusterReads.get();
+    long totalWrite = clusterWrites.get();
     log.info("------- FINAL REPORT -------- ");
     long testDuration = (actualTestEndTime - testStartTime) / 1000;
     log.info(String.format("Node TPS: %.1f", (double) totalNode  / testDuration));
     log.info(String.format("Cluster TPS: %.1f", (double) totalCluster / testDuration));
+    log.info("------- Cache Stats -------- ");
+    log.info(String.format("Cluster Cache Read TPS: %.1f", (double) totalRead / testDuration));
+    log.info(String.format("Cluster Cache Write TPS: %.1f", (double) totalWrite / testDuration));
+    log.info(String.format("Cluster Cache Total TPS: %.1f", (double) (totalRead + totalWrite) / testDuration));
 
     if (getConfiguration().isStandalone()){
       log.info(String.format("Cluster Avg Latency: %.1f", (double) clusterLatency.get() / (configuration.getNodesNum() * 100 )));
+      log.info(String.format("Warmup Cache TPS: %d", clusterCacheWarmup.get()));
       log.info(String.format("Warmup Cluster TPS: %d , Time taken for clusterCoherent: %d", clusterWarmup.get(), bulkLoadCompleteTime));
     }
     int totalWrites = test.getWritesCount();

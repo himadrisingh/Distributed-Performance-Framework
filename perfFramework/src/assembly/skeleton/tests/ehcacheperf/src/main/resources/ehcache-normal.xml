@@ -16,6 +16,9 @@
       diskExpiryThreadIntervalSeconds="120"
       memoryStoreEvictionPolicy="LRU"/>
 
+  <!-- 
+  	owners Cache stores Owners object. 	This has valuePadding.
+   -->
   <cache name="owners"
          maxElementsInMemory="${owners_inMemory}"
          maxElementsOnDisk="${owners_capacity}"
@@ -50,6 +53,12 @@
     	 
   </cache>
   
+  <!-- 
+  	pets Cache saves Pets objects. Each owner has 2 Pets. 
+  	valuePadding DOESNT apply to this.
+  	
+  	1 Owner = 2 Pets
+   -->
   <cache name="pets"
          maxElementsInMemory="${pets_inMemory}"
          maxElementsOnDisk="${pets_capacity}"
@@ -83,7 +92,13 @@
     </terracotta>
 
   </cache>
-  
+
+	<!--
+		visits cache stores visits for pets. Each Pet has 2 Visits, thus 4
+		Visits per Owner. This has valuePadding.
+		
+		1 Owner = 4 Visits
+	-->
   <cache name="visits"
          maxElementsInMemory="${visits_inMemory}"
          maxElementsOnDisk="${visits_capacity}"
@@ -117,6 +132,14 @@
     </terracotta>
 
   </cache>
+
+	<!--
+		petVisits stores list of ids of visits. Each Pet will contain the list
+		of ids. Each pet will result in 1 petVisits element, thus each owner
+		is 2 petVisits. valuePadding DOESNT apply to this.
+		
+		1 owner = 2 petVisits
+	-->
   
   <cache name="petVisits"
          maxElementsInMemory="${petVisits_inMemory}"
@@ -151,6 +174,14 @@
     </terracotta>
 
   </cache>
+
+	<!--
+		ownerPets store ids for Pets. Each Owner will have list of ids of Pet
+		Objects created. Each owner will result in 1 ownerPets element. 
+		valuePadding DOESNT apply to this.
+		
+		1 Owner = 1 ownerPets
+	-->
   
   <cache name="ownerPets"
          maxElementsInMemory="${ownerPets_inMemory}"
@@ -185,7 +216,11 @@
     </terracotta>
 
   </cache>
-  
+
+	<!--
+		There are 6 petTypes. The total elements should be 6 only.
+		valuePadding DOESNT apply to this.
+	-->
   <cache name="petTypes"
          maxElementsInMemory="${petTypes_inMemory}"
          maxElementsOnDisk="${petTypes_capacity}"

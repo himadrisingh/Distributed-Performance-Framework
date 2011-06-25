@@ -21,7 +21,7 @@ import java.util.Properties;
 /**
  * A simple example Java client which uses the commons HTTPClient.
  */
-public class ApacheRestEhCacheWrapper<K, V> implements CacheWrapper<K, V> {
+public class ApacheRestEhCacheWrapper<K, V> extends AbstractCacheWrapper<K, V>{
 
   private final static String     EHCACHE_SERVER_PROPS_FILE = "ehcache-server.properties";
 
@@ -77,7 +77,8 @@ public class ApacheRestEhCacheWrapper<K, V> implements CacheWrapper<K, V> {
     }
   }
 
-  public void put(final K key, final V value, final CacheEntryAdapter<V> adapter) {
+  @Override
+  public void putInCache(final K key, final V value, final CacheEntryAdapter<V> adapter) {
     PutMethod put = new PutMethod(URL + cacheName + "/" + key);
     try {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -103,8 +104,9 @@ public class ApacheRestEhCacheWrapper<K, V> implements CacheWrapper<K, V> {
     }
   }
 
+  @Override
   @SuppressWarnings("unchecked")
-  public V get(final K key, CacheEntryAdapter<V> adapter) {
+  public V getFromCache(final K key, CacheEntryAdapter<V> adapter) {
     GetMethod method = new GetMethod(URL + cacheName + "/" + key);
     try {
       // Execute the method.

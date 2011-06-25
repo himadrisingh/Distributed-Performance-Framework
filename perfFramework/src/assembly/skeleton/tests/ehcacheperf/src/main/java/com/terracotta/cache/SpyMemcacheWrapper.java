@@ -11,7 +11,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class SpyMemcacheWrapper<K, V> implements CacheWrapper<K, V> {
+public class SpyMemcacheWrapper<K, V> extends AbstractCacheWrapper<K, V> {
 
   private final String                 cacheName;
   private final static String          MEMCACHE_PROPS_FILE = System.getProperty("memcached.properties","src/main/resources/memcache-props.properties");
@@ -29,7 +29,8 @@ public class SpyMemcacheWrapper<K, V> implements CacheWrapper<K, V> {
     }
   }
 
-  public void put(final K key, final V value, final CacheEntryAdapter<V> adapter) {
+  @Override
+  public void putInCache(final K key, final V value, final CacheEntryAdapter<V> adapter) {
     Future f = client.set(cacheName + key, 0, value);
     try {
       f.get();
@@ -40,7 +41,8 @@ public class SpyMemcacheWrapper<K, V> implements CacheWrapper<K, V> {
     }
   }
 
-  public V get(final K key, CacheEntryAdapter<V> adapter) {
+  @Override
+  public V getFromCache(final K key, CacheEntryAdapter<V> adapter) {
     Future f = client.asyncGet(cacheName + key);
     Object obj = null;
     try {

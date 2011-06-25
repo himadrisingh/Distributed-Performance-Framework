@@ -16,7 +16,7 @@ public class EhCacheWrapperWithWriter<K, V> extends EhCacheWrapper<K, V> {
   }
 
   @Override
-  public void put(final K key, final V value, final CacheEntryAdapter<V> vCacheEntryAdapter) {
+  public void putInCache(final K key, final V value, final CacheEntryAdapter<V> vCacheEntryAdapter) {
     Element element = getElement(key, value, vCacheEntryAdapter);
     if (value instanceof Owner || value instanceof Visit) {
       getCache().putWithWriter(element);

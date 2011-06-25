@@ -32,11 +32,11 @@ public abstract class SearchCache {
   }
 
   protected Results executeQuery(Query query) throws NonStopCacheException{
-    LOG.info("[" + getCacheName()+ "] Executing query.");
+    LOG.debug("[" + getCacheName()+ "] Executing query.");
     Results res = null;
     res = query.execute();
     if (res != null)
-      LOG.info("[" + getCacheName()+ "] Query completed. Results Size: " + res.size());
+      LOG.debug("[" + getCacheName()+ "] Query completed. Results Size: " + res.size());
     else
       LOG.error("Results set is NULL.");
     return res;

@@ -10,7 +10,7 @@
   <groupId>com.terracotta</groupId>
   <artifactId>ehcacheperf</artifactId>
   <packaging>jar</packaging>
-  <version>3.5.0-SNAPSHOT</version>
+  <version>3.6.0-SNAPSHOT</version>
   <name>Terracotta EhCache Performance Test</name>
   <dependencies>
     <dependency>
@@ -149,6 +149,11 @@
       <artifactId>terracotta-toolkit-${toolkit.spec}-runtime${ee.enabled}</artifactId>
       <version>${terracotta-toolkit-runtime.version}</version>
     </dependency>
+    <dependency>
+    	<groupId>org.apache.commons</groupId>
+    	<artifactId>commons-math</artifactId>
+    	<version>2.0</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -156,6 +161,13 @@
         <groupId>org.terracotta.maven.plugins</groupId>
         <artifactId>tc-maven-plugin</artifactId>
         <version>${tc-maven-plugin.version}</version>
+        <dependencies>
+					<dependency>
+						<groupId>org.terracotta</groupId>
+						<artifactId>terracotta</artifactId>
+						<version>3.5.2-SNAPSHOT</version>
+					</dependency>
+        </dependencies>
         <configuration>
           <mode>${tc.mode}</mode>
 		  <startServer>true</startServer>
@@ -239,12 +251,12 @@
     
   </repositories>
   <properties>
-  	<ehcache-core.version>2.5.0-SNAPSHOT</ehcache-core.version>
+  	<ehcache-core.version>2.4.4-SNAPSHOT</ehcache-core.version>
   	<tim-ehcache-2.x.version>1.8.0-SNAPSHOT</tim-ehcache-2.x.version>
-  	<ehcache-terracotta.version>2.5.0-SNAPSHOT</ehcache-terracotta.version>
-  	<tc-maven-plugin.version>1.6.2-SNAPSHOT</tc-maven-plugin.version>
+  	<ehcache-terracotta.version>2.4.4-SNAPSHOT</ehcache-terracotta.version>
+  	<tc-maven-plugin.version>1.7.0-SNAPSHOT</tc-maven-plugin.version>
   	<terracotta-toolkit-runtime.version>4.0.0-SNAPSHOT</terracotta-toolkit-runtime.version>
-  	<toolkit.spec>1.3</toolkit.spec>
+  	<toolkit.spec>1.4</toolkit.spec>
   	<ee.enabled></ee.enabled>
   </properties>
 </project>

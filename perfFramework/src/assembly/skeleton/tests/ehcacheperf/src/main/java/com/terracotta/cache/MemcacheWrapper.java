@@ -1,9 +1,5 @@
 package com.terracotta.cache;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-
 import org.springframework.samples.petclinic.CacheEntryAdapter;
 
 import com.googlecode.hibernate.memcached.Memcache;
@@ -11,7 +7,11 @@ import com.googlecode.hibernate.memcached.MemcacheClientFactory;
 import com.googlecode.hibernate.memcached.PropertiesHelper;
 import com.googlecode.hibernate.memcached.spymemcached.SpyMemcacheClientFactory;
 
-public class MemcacheWrapper<K, V> implements CacheWrapper<K, V> {
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+public class MemcacheWrapper<K, V> extends AbstractCacheWrapper<K, V> {
 
   private final String                 cacheName;
   private Memcache                     memcache            = null;
@@ -33,11 +33,13 @@ public class MemcacheWrapper<K, V> implements CacheWrapper<K, V> {
     }
   }
 
-  public void put(final K key, final V value, final CacheEntryAdapter<V> adapter) {
+  @Override
+  public void putInCache(final K key, final V value, final CacheEntryAdapter<V> adapter) {
     memcache.set(cacheName + key, 0, value);
   }
 
-  public V get(final K key, CacheEntryAdapter<V> adapter) {
+  @Override
+  public V getFromCache(final K key, CacheEntryAdapter<V> adapter) {
     return (V) memcache.get(cacheName + key);
   }
 

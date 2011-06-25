@@ -28,9 +28,7 @@ public class SearchExecutor{
   private static int    hugeSearchRatio;
   private static int    iterateResults;
 
-  private static LongStat smallSearches  = new LongStat(1024 * 1024);
-  private static LongStat hugeSearches   = new LongStat(1024 * 1024);
-  private static LongStat iterateSearches = new LongStat(1024 * 1024);
+  private final SearchStats stats;
 
   private final SearchOwnerCache owners;
   private final SearchPetCache pets;
@@ -71,6 +69,22 @@ public class SearchExecutor{
       pets.enableIncludeValues();
       visits.enableIncludeValues();
     }
+
+    stats = SearchStats.getInstance();
+    Thread statPrinter = new Thread(){
+      @Override
+      public void run() {
+        while (true){
+          try {
+            Thread.sleep(5000);
+          } catch (InterruptedException e) {
+            return;
+          }
+          stats.printStats();
+        }
+      }
+    };
+    statPrinter.start();
 
     LOG.info(String
              .format("Search intialized... Threads: %d, Interval: %d, HugeSearchRatio: %d, includeKeys: %b, includeValues: %b",
@@ -124,19 +138,6 @@ public class SearchExecutor{
       return rnd.nextInt(100) < hugeSearchRatio;
     }
 
-    private void printStats(){
-      hugeSearches.snapshot();
-      smallSearches.snapshot();
-      iterateSearches.snapshot();
-
-      LOG.info(String.format("Huge Searches: %d , Avg: %.1f, Min: %d, Max: %d ", hugeSearches.size(), hugeSearches
-                             .getAverage(), hugeSearches.getMin(), hugeSearches.getMax()));
-      LOG.info(String.format("Small Searches: %d , Avg: %.1f, Min: %d, Max: %d ", smallSearches.size(), smallSearches
-                             .getAverage(), smallSearches.getMin(), smallSearches.getMax()));
-      LOG.info(String.format("Search Iteration: %d, Avg: %.1f, Min: %d, Max: %d ", iterateSearches.size(),
-                             iterateSearches.getAverage(), iterateSearches.getMin(), iterateSearches.getMax()));
-    }
-
     private void search(SearchCache cache){
       boolean isHuge = isHugeSearch();
       Results results = null;
@@ -145,7 +146,7 @@ public class SearchExecutor{
           long start = now();
           results = cache.searchHugeResultSet();
           long end = now();
-          hugeSearches.add(end - start);
+          stats.addHugeSearchLatency(end - start);
         } catch (NonStopCacheException e){
           e.printStackTrace();
         }
@@ -155,7 +156,7 @@ public class SearchExecutor{
           long start = now();
           results = cache.searchSmallResultSet();
           long end = now();
-          smallSearches.add(end - start);
+          stats.addSmallSearchLatency(end - start);
         } catch (NonStopCacheException e){
           e.printStackTrace();
         }
@@ -163,7 +164,7 @@ public class SearchExecutor{
 
       if (rnd.nextInt() < iterateResults && results != null){
         long start = now();
-        LOG.info("Iterating through tests results.");
+        LOG.debug("Iterating through tests results.");
         for (Result res : results.all()){
           if (res != null){
             if(includeValues)
@@ -176,10 +177,41 @@ public class SearchExecutor{
           }
         }
         long end = now();
-        iterateSearches.add(end - start);
+        stats.addIterationLatency(end - start);
       }
+    }
+  }
 
-      printStats();
+  private static class SearchStats{
+    private static SearchStats stats = new SearchStats();
+
+    private final LongStat smallSearches  = new LongStat(1024 * 1024);
+    private final LongStat hugeSearches   = new LongStat(1024 * 1024);
+    private final LongStat iterateSearches = new LongStat(1024 * 1024);
+
+    public void addSmallSearchLatency(long value){
+      smallSearches.add(value);
+    }
+
+    public void addHugeSearchLatency(long value){
+      hugeSearches.add(value);
+    }
+
+    public void addIterationLatency(long value){
+      iterateSearches.add(value);
+    }
+    public static SearchStats getInstance(){
+      return stats;
+    }
+
+    public void printStats(){
+      hugeSearches.snapshot();
+      smallSearches.snapshot();
+      iterateSearches.snapshot();
+
+      LOG.info("Huge Searches: " + hugeSearches);
+      LOG.info("Small Searches: " + smallSearches);
+      LOG.info("Search Iteration: " + iterateSearches);
     }
   }
 

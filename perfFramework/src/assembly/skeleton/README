@@ -14,7 +14,7 @@ Steps to run:
 
 4. Check conf/load.properties and set kit-location, machines, etc
 
-5. If using test/ehcacheperf, do "mvn clean install".
+5. If using test/ehcacheperf, do "mvn clean install" to compile the project.
 
 6. To start master process
  	bin/run-master.sh

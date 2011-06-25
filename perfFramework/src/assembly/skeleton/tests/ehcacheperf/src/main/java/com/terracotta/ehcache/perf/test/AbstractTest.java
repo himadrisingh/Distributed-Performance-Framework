@@ -10,8 +10,10 @@ import org.terracotta.util.ClusteredAtomicLong;
 
 import com.terracotta.EhCachePerfTest;
 import com.terracotta.cache.CacheProcessor;
+import com.terracotta.cache.CacheStatsProcessor;
 import com.terracotta.cache.CacheWrapper;
 import com.terracotta.cache.EhCacheWrapper;
+import com.terracotta.cache.ResetCacheStatsProcessor;
 import com.terracotta.util.StatReporter;
 
 import java.util.ArrayList;
@@ -235,7 +237,17 @@ public abstract class AbstractTest {
    * Called by the reporting thread every reporting interval. Override to log any reporting from the test
    */
   public void doPeriodReport() {
-    // override if needed
+    //
+  }
+
+  public void processCacheStats(){
+    CacheProcessor cacheDetails = CacheStatsProcessor.getInstance();
+    clinic.processAllCaches(cacheDetails);
+  }
+
+  public void resetCacheStats(){
+    CacheProcessor processor = new ResetCacheStatsProcessor();
+    clinic.processAllCaches(processor);
   }
 
   // called at end of test, after all test threads are complete, by the main thread
@@ -264,4 +276,5 @@ public abstract class AbstractTest {
       }
     }
   }
+
 }

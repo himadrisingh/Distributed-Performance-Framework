@@ -14,7 +14,6 @@ public class CacheGetSizeTest extends AbstractTest {
 
   private final AtomicInteger numThreadsAtomicInt = new AtomicInteger();
   private long                startTime           = 0;
-  private int                 nodeId;
   private int                 numThreads;
   private final AtomicBoolean testComplete        = new AtomicBoolean(false);
 

@@ -9,7 +9,7 @@ import org.springframework.samples.petclinic.CacheEntryAdapter;
 /**
  * @author Alex Snaps
  */
-public class EhCacheWrapper<K, V> implements CacheWrapper<K, V> {
+public class EhCacheWrapper<K, V> extends AbstractCacheWrapper<K, V> {
 
   private final String       cacheName;
   private final CacheManager cacheManager;
@@ -19,7 +19,8 @@ public class EhCacheWrapper<K, V> implements CacheWrapper<K, V> {
     this.cacheManager = cacheManager;
   }
 
-  public void put(final K key, final V value, final CacheEntryAdapter<V> adapter) {
+  @Override
+  public void putInCache(final K key, final V value, final CacheEntryAdapter<V> adapter) {
     getCache().put(getElement(key, value, adapter));
   }
 
@@ -27,7 +28,8 @@ public class EhCacheWrapper<K, V> implements CacheWrapper<K, V> {
     return new Element(key, adapter == null ? value : adapter.dehydrate(value));
   }
 
-  public V get(final K key, CacheEntryAdapter<V> adapter) {
+  @Override
+  public V getFromCache(final K key, CacheEntryAdapter<V> adapter) {
     Element element = getCache().get(key);
     V v = null;
     if (element != null) {
@@ -47,7 +49,7 @@ public class EhCacheWrapper<K, V> implements CacheWrapper<K, V> {
   public Ehcache getCache() {
     return cacheManager.getEhcache(cacheName);
   }
-  
+
   public int getSize() {
     return getCache().getSize();
   }
